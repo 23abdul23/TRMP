@@ -2,7 +2,7 @@
 # include<stdlib.h>
 # include<math.h>
 # include<sys/types.h>
-# include <sys/times.h>
+# include<time.h>
 
 # define u01 ((double) rand()/(RAND_MAX+1.0))
 # define COVMAX 701 // total group
@@ -14,8 +14,7 @@
 # define tit 20 // total no. of run
 # define zl 100
 
-struct tms buff;
-int utimer,butimer_mut; 
+clock_t utimer,butimer_mut;
 double utime,butime_mut;
 int initpop_count,opp_count;
 int SPOP;
@@ -89,7 +88,7 @@ int main(int argc, char * argv[])
       }
     }
 // initialization of sensor angle i.e. s0
-initfile=fopen("/home/gaurav/Desktop/es_op/es_noneh1popshake/init/init_state.dat","r");
+initfile=fopen("init_state.dat","r");
 if(initfile==NULL)
 {
 printf("unable to read init angle file\n");
@@ -115,8 +114,7 @@ fscanf(initfile,"%lf",&init_ang[j]); //reading initial angle in init array
 
 for(trn=0;trn<tit;++trn)//tit must be less than 50 as vtm vit are 50 only
 {
-	times(&buff);
-    utimer=buff.tms_utime;
+	utimer=clock();
     srand(trn+1);
 
 	SPOP=20;
@@ -148,8 +146,7 @@ for(trn=0;trn<tit;++trn)//tit must be less than 50 as vtm vit are 50 only
 				
 		if(((record-mut_cost)>=ACC) || (xdf==1)) // if trial cost is minimum
 		{
-			times(&buff);
-			butimer_mut=buff.tms_utime;
+			butimer_mut=clock();
 					
 			if(xdf==0)
 			{
@@ -230,9 +227,8 @@ for(trn=0;trn<tit;++trn)//tit must be less than 50 as vtm vit are 50 only
 printf("d is %d\tpert_cnt %d\t replace_cnt %d\t shk_cnt %d\n",d,pert_cnt,replace_cnt,shk_cnt);
 printf("\n  bnc_mut is %d\n",bnc_mut);
 
-butime_mut=(butimer_mut-utimer)/100.0;
-times(&buff);
-utime=(buff.tms_utime-utimer)/100.0;
+butime_mut=(double)(butimer_mut-utimer)/CLOCKS_PER_SEC;
+utime=(double)(clock()-utimer)/CLOCKS_PER_SEC;
 
 fflush(stdin);
 
@@ -390,8 +386,7 @@ void init_pop1(int popsize)
         
        if(record-cost[i]>=ACC)
         {
-            times(&buff);
-            butimer_mut=buff.tms_utime;
+            butimer_mut=clock();
             record=cost[i];
             record_min=record;
             mxind=i;
