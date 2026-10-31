@@ -1,0 +1,4 @@
+out/
+.venv/
+*.exe
+__pycache__/
