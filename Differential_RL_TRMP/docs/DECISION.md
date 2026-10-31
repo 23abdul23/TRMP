@@ -19,6 +19,10 @@ Wilcoxon p is 0.25, and the sign flips with budget (κ=2 is +0.43 % *worse* at 2
 10 runs are used; (b) (κ ranking changes by phase) fails: κ=2 has the best gain per evaluation in essentially every quarter.
 Result: **inconclusive-to-negative for κ, not a proven dead end.**
 
+> **Erratum (Option C measurement):** "most of the evaluation budget is spent on no-op moves" is too strong.
+> Of the 92–98 % tie offspring, only 3.9 % (n=100) / 16.4 % (n=198) of mutations at κ=4 return the *identical permutation*; the rest are
+> different permutations of equal cost (plateau moves), which the code accepts. True no-ops use ~4 % / ~16 % of the budget at κ=4.
+
 ## 2. Phase 0 — reproduction (done)
 
 * Baseline rebuilt from `es_pre_sfFIN.c` (gcc -O2). **32 of 32 instances compared match `results_ESapproach.ods` (Sheet1) exactly**
@@ -91,3 +95,18 @@ Corrections to the design document / plan found while reading the paper and code
 `src/` driver + lifted core; `tests/` equivalence + unit; `scripts/` diagnostic generator, job runners, `analyze_p1.py`, Phase 0 scripts;
 raw diagnostic logs are in `out/` (git-ignored; regenerate with `scripts/make_diag.py` + `scripts/run_diag_job.sh`).
 Python env: `.venv` (numpy, scipy, matplotlib, pandas, odfpy); `scripts/requirements.txt` should list these.
+
+## 8. Update — Options A, B, C were run (3 agents, separate worktrees, exploratory, not yet merged)
+
+Branches (local, not pushed): A `worktree-agent-aca907d2c67746012` (docs/OPTION_A_RESULTS.md), B `option-b-r1` (docs/OPTION_B_RESULTS.md),
+C `worktree-agent-ad7233bf917520519` (docs/OPTION_C_WRITEUP.md + figures).
+
+* **κ-only learning has no headroom (A, B, C agree).** n=400, 10 paired runs: κ=2 vs κ=4 is +0.05 % (4 wins/6 losses, p=0.77) — the earlier −0.36 % (3 runs) and B's
+  −0.74 % (3 runs) were noise. B's R1 learner (differential, SMDP) matches fixed κ=2 / random κ at n=100 and n=198 (−0.03 %, −0.14 % vs κ=2, p>0.5), converges to
+  κ=2 almost everywhere, and is 0.49 % worse than κ=2 at n=400 (3 runs). Discounted γ=0.9 was −1.10 % vs κ=4 at n=100 (p=0.027) but that equals what fixed κ=2 gives.
+  B needed a deviation: τ in raw evaluations made R̄ diverge; τ is now in units of one κ=4 mutation (documented, failed attempt kept).
+* **Which groups are removed matters (A).** At κ=4, equal evaluations, vs uniform destroy: `block` −0.97 % (n=100), −1.79 % (n=198, 10/10 runs, p=0.002), −2.66 % (n=400, 5/5 runs, p=0.0625);
+  `cost-greedy` no gain; `history-aware` no gain at n≤198 and −0.29 % at n=400 (5/0, p=0.0625, worse early) — unproven. The block n=400 mean (4257.5) is below the published best for that instance (4349.3); the uniform control reproduces the published mean.
+  Caveats: one instance per size, ≤10 runs, uncorrected p-values, block only tested at κ=4. **This is a fixed, non-learned operator change — an improvement of the baseline itself, not of an RL controller.**
+* **Implication for the plan:** a learner over κ is pointless; a learner over {uniform, block, …} may be worth testing *only after* block is validated on more instances. Suggested next step: make block the fixed baseline, sweep its κ, validate on ≥3 instances per size with ≥10 runs, then re-ask whether anything is left for a learner (R2 over policy × κ).
+* **Still not done:** the 20-run n=400 reproduction of the baseline died without output (needs rerun, ~hours); 13 mid-size and 15 n=400 instances unreproduced.
