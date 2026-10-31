@@ -14,7 +14,8 @@
 #define SPO 50
 #define zl 100
 
-enum { POLICY_UNIFORM = 0 };   /* further policies arrive in Stage R2 */
+enum { POLICY_UNIFORM = 0, POLICY_COST_GREEDY = 1, POLICY_HISTORY = 2, POLICY_BLOCK = 3 };
+double history_costs(const int *ind, double *h);   /* see destroy_repair.c */
 
 extern int sen, grp, initpop_count, opp_count, ind_maxc, pert_cnt;
 extern double record, record_min, init_ang[MMAX], wt[COVMAX][MMAX], cost[SPO];

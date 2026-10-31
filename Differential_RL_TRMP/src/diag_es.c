@@ -114,7 +114,7 @@ fscanf(initfile,"%lf",&init_ang[j]); //reading initial angle in init array
 // -----------------------generation begins----------------/////////////////////////////////////
 
 
-for(trn=0;trn<nruns;++trn)//tit must be less than 50 as vtm vit are 50 only
+for(trn=(argc>7?atoi(argv[7]):0);trn<nruns;++trn)//tit must be less than 50 as vtm vit are 50 only
 {
 	utimer=clock();
     srand(trn+1);
