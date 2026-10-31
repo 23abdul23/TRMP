@@ -14,7 +14,14 @@
 #define SPO 50
 #define zl 100
 
-enum { POLICY_UNIFORM = 0, POLICY_COST_GREEDY = 1, POLICY_HISTORY = 2, POLICY_BLOCK = 3 };
+enum { POLICY_UNIFORM = 0, POLICY_COST_GREEDY = 1, POLICY_HISTORY = 2, POLICY_BLOCK = 3,
+       /* [T3] mechanism controls */
+       POLICY_BLOCK_RORD = 4,    /* contiguous segment as block, reinsertion in random order */
+       POLICY_UNIF_SORTED = 5,   /* same removed set + RNG use as uniform, reinsertion in ascending position order */
+       POLICY_WRAP = 6,          /* contiguous segment, uniform start in [0,n-1], wraparound, cyclic order */
+       POLICY_MAX = 6 };
+/* [T3] diagnostics of the last destroy (only filled when diag_removed != 0; consumes no rand(), no eval accounting) */
+extern int diag_removed; extern double last_removed_cost; extern int last_span;
 double history_costs(const int *ind, double *h);   /* see destroy_repair.c */
 
 extern int sen, grp, initpop_count, opp_count, ind_maxc, pert_cnt;
