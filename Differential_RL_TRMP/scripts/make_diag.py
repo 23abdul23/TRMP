@@ -10,7 +10,7 @@ rep("clock_t utimer,butimer_mut;","long long eval_calls=0; int fixed_kappa=4,nru
 rep("double findcost_d(int *ind,int sub) // sub is element to remove=d //F\n{\nint i,j;","double findcost_d(int *ind,int sub) // sub is element to remove=d //F\n{\neval_calls++;\nint i,j;")
 rep("if(argc != 4)","if(argc < 4)")
 rep("  outfile=fopen(argv[3],\"a\");","  fixed_kappa=argc>4?atoi(argv[4]):4; nruns=argc>5?atoi(argv[5]):20; dlog=argc>6?fopen(argv[6],\"w\"):NULL;\n  outfile=fopen(argv[3],\"a\");")
-rep("for(trn=0;trn<tit;++trn)","for(trn=0;trn<nruns;++trn)")
+rep("for(trn=0;trn<tit;++trn)","for(trn=(argc>7?atoi(argv[7]):0);trn<nruns;++trn)")
 rep("\td=4;\n\n\t//***************initialization pop","\td=fixed_kappa;\n\n\t//***************initialization pop")
 rep("\t\tmut_cost=pert_d(rec);\n\t\txdf=isequal(record,mut_cost);",
 """\t\t\t{ long long e0=eval_calls; double fp=record; int ke=d; if(ke>grp/2) ke=grp/2; if(ke<1) ke=1;

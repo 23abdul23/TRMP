@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 {
   const char *inst=NULL,*initf="init_state.dat",*mode="baseline",*resout=NULL,*runscsv=NULL,
              *iterlog=NULL,*statelog=NULL;
-  int nruns=20,kappa0=4,maxit=4000,i,trn;
+  int nruns=20,kappa0=4,maxit=4000,i,trn,policy=POLICY_UNIFORM;
   for(i=1;i<argc;++i){
     if(!strcmp(argv[i],"--instance")) inst=argv[++i];
     else if(!strcmp(argv[i],"--init")) initf=argv[++i];
@@ -42,6 +42,10 @@ int main(int argc, char **argv)
     else if(!strcmp(argv[i],"--runs-csv")) runscsv=argv[++i];
     else if(!strcmp(argv[i],"--iter-log")) iterlog=argv[++i];
     else if(!strcmp(argv[i],"--state-log")) statelog=argv[++i];
+    else if(!strcmp(argv[i],"--policy")){ i++;
+      if(!strcmp(argv[i],"uniform")) policy=POLICY_UNIFORM; else if(!strcmp(argv[i],"cost-greedy")) policy=POLICY_COST_GREEDY;
+      else if(!strcmp(argv[i],"history-aware")) policy=POLICY_HISTORY; else if(!strcmp(argv[i],"block")) policy=POLICY_BLOCK;
+      else { fprintf(stderr,"unknown policy %s\n",argv[i]); return 1; } }
     else { fprintf(stderr,"unknown arg %s\n",argv[i]); return 1; }
   }
   if(!inst||nruns<1||nruns>MAXRUNS){ fprintf(stderr,"usage: es_drl --instance F [--mode baseline] [--out F] [--runs N<=50] [--kappa K] [--iters N] [--runs-csv F] [--iter-log F] [--state-log F] [--init F]\n"); return 1; }
@@ -86,7 +90,7 @@ int main(int argc, char **argv)
                th=(record-record_min)/(record_min>0?record_min:1);
         fprintf(fs,"%d,%d,%lld,%.4f,%.4f,%.4f,%.4f,%.6f,%.4f\n",trn,itr,e0-e_start,u,beta,ps,pa,th,zeta);
       }
-      mut_cost=pert_d(rec,d,POLICY_UNIFORM);
+      mut_cost=pert_d(rec,d,policy);   /* shuffle below stays uniform (baseline) */
       xdf=isequal(record,mut_cost);
       int strict=((record-mut_cost)>=ACC), accepted=(strict||xdf);
       if(fi) fprintf(fi,"M %d %d %d %.6f %.6f %lld %d %d\n",trn,itr,effective_kappa(d),fp,mut_cost,eval_calls-e0,accepted,strict);
