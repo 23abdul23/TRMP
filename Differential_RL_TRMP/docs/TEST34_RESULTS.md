@@ -102,14 +102,26 @@ Equal-evaluation best at 100 % budget (mean over 10 runs), % vs uniform; W/L; p:
 Strict-improvement rate per 1000 evaluations by (stagnation quartile u=noimprv/100) × (budget quarter); block minus uniform; 90 % bootstrap interval over runs; only cells with ≥30 strict improvements in both arms are shown.
 Pure arms, n=198: 8 valid cells (u-bins 0–1 × 4 quarters); u-bin 0 × Q1 **+0.025 [+0.009,+0.041]\*** (876 vs 686 improvements), Q2 +0.008, Q3 −0.008, Q4 −0.008 (both intervals include 0), u-bin 1 ≈ 0.
 Mixed arms (operator used per mutation, pooled over the three mixes), n=198: u-bin 0 × Q1 +0.012\*, u-bin 1 × Q1 +0.013\*, u-bin 1 × Q3 +0.008\* — **all significant cells favour block; no cell favours uniform significantly**. n=100: only u-bin 0 × Q1 (+0.028\*, pooled mixes) is significant, positive.
-* **Pre-registered rule for "state-dependent preference" is NOT satisfied** (needs ≥2 significant cells of opposite sign). The only hint of a flip is the *late-run, low-stagnation* cells at n=198 pure arms (block −0.008 per 1000 evals vs uniform in Q3/Q4, intervals touching 0) — not significant, and based on 50–100 events per cell.
+* **Pre-registered rule for "state-dependent preference" is NOT satisfied at n=100 or n=198** (needs ≥2 significant cells of opposite sign). The hint of a flip is the *late-run, low-stagnation* cells (n=198 pure arms: block −0.008 per 1000 evals vs uniform in Q3/Q4, intervals touching 0; 50–100 events per cell). **At n=400 the rule is met** (§3: Q1 +0.020\*, Q4 −0.010\*, 5 runs only).
+* **What this would mean for a learner:** the only candidate state-dependence is *"block early, uniform late"*, i.e. a function of budget phase, which a fixed schedule (e.g. block for the first ~50 % of the evaluations, uniform afterwards) could implement without any RL. Neither this schedule nor a time-varying mix was run; `mix:p` with constant p is monotone-worse than pure block at n=198, so constant mixing is not the way to exploit it.
 * **Power limit:** strict improvements are rare (≈1–3 % of mutations early, <0.5 % late) and the high-stagnation bins (u ≥ 0.5) have almost none, so a state-dependent operator choice could only be detected in the early/low-stagnation corner, where block is already uniformly better. A learner would therefore have no resolvable signal to exploit at this sample size.
 
-## 3. n=400 (`dirn400m240r150s04i00`, 5 runs) — confirmation only
-(see §4 for what had finished at the time of writing)
+## 3. n=400 (`dirn400m240r150s04i00`, φ=π/2, 5 paired runs) — confirmation only, pure arms only
+This is a **different instance** from Option A's n=400 (`s06i00`), so it is an independent replication of the headline.
+Equal-evaluation best-so-far, `block` vs `uniform` (mean best uniform 3275.62):
+| budget | block | W/L | p |
+|---|---|---|---|
+| 25 % | −2.49 % | 5/0 | .0625 |
+| 50 % | −2.84 % | 5/0 | .0625 |
+| 100 % | **−2.79 %** | 5/0 | .0625 (smallest attainable with 5 pairs) |
+Offspring (iterations 1000–3000): identical 4.1/4.6 %, plateau 92.1/80.2 %, worse 1.3/12.2 %, better 2.52/2.95 %, removed-set cost 32.9/31.8, removed span 241/3 (uniform/block). Same picture as n=198: more worse offspring, similar share of better ones, cheaper removed set.
+Strict-improvement rate per 1000 evals (block minus uniform, pure arms): u-bin 0 × Q1 **+0.020 [+0.014,+0.025]\*** (888 vs 664 improvements), Q2 +0.005, Q3 −0.004, **Q4 −0.010 [−0.015,−0.005]\*** (33 vs 76); u-bin 1 × Q2 +0.007\*.
+**Mixed arms at n=400 were NOT run to completion** (the queue was still on them when I stopped; the Test-4 classification therefore rests on n=100 and n=198 only).
+**Per-state rule at n=400: the pre-registered condition (≥2 significant cells of opposite sign) IS met on the pure arms** — block is better early/low-stagnation, uniform is better in the last quarter. Read with care: only 5 runs to resample, the late cell has 33 vs 76 events, no multiplicity correction. The same *direction* is visible at n=198 (Q3/Q4 −0.008 per 1000 evals, intervals include 0), so it is a consistent hint, not an established effect.
 
 ## 4. Honest limits
-* One instance per size and one aperture family (both the n=100 and n=198 instances are φ=π/3, the hardest aperture; n=400 is φ=π/2); n=100 has weak power (10 pairs; smallest attainable p=.002 but typical p≈.1). Uncorrected p-values; ~25 contrasts reported.
+* One instance per size; n=100 and n=198 are the same aperture (φ=π/3), n=400 here is φ=π/2 (pure arms only, 5 runs).
+* n=100 has weak power (10 pairs; typical p≈.1). Uncorrected p-values; ~30 contrasts reported.
 * κ=4 only; the shuffle (η=100, δ-ladder) is always uniform in every arm — a block-shuffle was not tried.
 * The mechanism claim in §1.3 beyond "contiguity of the removed set" is a hypothesis.
 * The mix arms use a different RNG consumption pattern than pure arms, so identical seeds do not give identical streams — pairing removes only start-point variance.
