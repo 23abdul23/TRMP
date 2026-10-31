@@ -4,6 +4,8 @@
  * calls and every output is identical to the baseline. */
 #include "trmp.h"
 
+int diag_removed=0; double last_removed_cost=0; int last_span=0;   /* [T3] */
+
 int effective_kappa(int kappa)   /* the clamping pert_d applies, exposed for logging */
 {
   int dd = kappa, hd = (int)(grp/2);
@@ -46,6 +48,24 @@ static void select_positions(const int *a, int dd, int policy, int *sel)
     for (k = 0; k < dd; ++k) sel[k] = s0 + k;
     return;
   }
+  if (policy == POLICY_BLOCK_RORD) {   /* [T3] block's segment, random reinsertion order */
+    int s0 = (int)(u01 * (grp - dd + 1)), j, t;
+    for (k = 0; k < dd; ++k) sel[k] = s0 + k;
+    for (k = dd - 1; k > 0; --k) { j = (int)(u01 * (k + 1)); t = sel[k]; sel[k] = sel[j]; sel[j] = t; }
+    return;
+  }
+  if (policy == POLICY_WRAP) {         /* [T3] cyclic segment, start uniform over all n positions */
+    int s0 = (int)(u01 * grp);
+    for (k = 0; k < dd; ++k) sel[k] = (s0 + k) % grp;
+    return;
+  }
+  if (policy == POLICY_UNIF_SORTED) {  /* [T3] identical draws to uniform => identical removed set; sorted reinsertion */
+    int seqp[COVMAX], nu = grp, z, j, t;
+    for (i = 0; i < grp; ++i) seqp[i] = i;
+    for (k = 0; k < dd; ++k) { z = (int)(u01 * nu); sel[k] = seqp[z]; nu--; seqp[z] = seqp[nu]; }
+    for (k = 1; k < dd; ++k) { t = sel[k]; for (j = k - 1; j >= 0 && sel[j] > t; --j) sel[j + 1] = sel[j]; sel[j + 1] = t; }
+    return;
+  }
   if (policy == POLICY_COST_GREEDY) position_costs(a, w);
   else history_costs(a, w);
   for (i = 0; i < grp; ++i) { w[i] += 1e-9; used[i] = 0; }
@@ -66,7 +86,7 @@ double pert_d(int *a, int kappa, int policy)
     double tempcost[COVMAX],record1;
     
      pert_cnt++;
-    if(policy<POLICY_UNIFORM || policy>POLICY_BLOCK){ fprintf(stderr,"unknown destroy policy %d\n",policy); exit(2); }
+    if(policy<POLICY_UNIFORM || policy>POLICY_MAX){ fprintf(stderr,"unknown destroy policy %d\n",policy); exit(2); }
     hd=(int)(grp/2);// hd is half of grp value
     if(dd>hd)
     {
@@ -102,6 +122,12 @@ double pert_d(int *a, int kappa, int policy)
       int sel[COVMAX];
       select_positions(a,dd,policy,sel);
       for(i=0;i<dd;++i){ sub[i]=a[sel[i]]; tgt[sel[i]]=-404; }
+    }
+
+    if(diag_removed){   /* [T3] cost of the removed set; read-only diagnostics */
+      double pcd[COVMAX]; int mn=grp,mx=-1; position_costs(a,pcd); last_removed_cost=0;
+      for(i=0;i<dd;++i){ int ps=index[sub[i]]; last_removed_cost+=pcd[ps]; if(ps<mn)mn=ps; if(ps>mx)mx=ps; }
+      last_span=mx-mn;
     }
 
     for(i=0,j=0;i<grp;i++,j++)// sub array after removing d elements
