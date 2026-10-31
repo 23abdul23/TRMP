@@ -1,0 +1,81 @@
+=== TEST 1: block(k=4) vs uniform(k=4), equal evaluations ===
+
+n~100  dirn100m060r150s03i03   paired runs=10
+  B*x0.25 uniform:    307.90 | block:    306.76 (-0.37% W7/L3 p=0.160)
+  B*x0.5  uniform:    306.65 | block:    305.48 (-0.38% W6/L4 p=0.275)
+  B*x1.0  uniform:    305.33 | block:    303.94 (-0.46% W6/L4 p=0.232)
+
+n~100  dirn100m060r150s04i02   paired runs=10
+  B*x0.25 uniform:    376.06 | block:    373.71 (-0.63% W7/L3 p=0.049)
+  B*x0.5  uniform:    372.94 | block:    372.54 (-0.11% W5/L5 p=0.846)
+  B*x1.0  uniform:    371.56 | block:    371.92 (+0.10% W4/L6 p=0.770)
+
+n~100  dirn100m060r150s06i04   paired runs=10
+  B*x0.25 uniform:    331.44 | block:    330.09 (-0.41% W4/L6 p=0.557)
+  B*x0.5  uniform:    328.64 | block:    327.04 (-0.48% W6/L4 p=0.322)
+  B*x1.0  uniform:    326.02 | block:    326.79 (+0.24% W4/L6 p=0.695)
+
+  >> n~100: instances finished=3/3, block better on 1; mean per-instance diff -0.04%; pooled per-run Wilcoxon p=0.8394 (n=30, exploratory); any significantly worse: False; RULE 'generalises' = False
+
+n~200  dirn200m120r150s03i03   paired runs=10
+  B*x0.25 uniform:    764.94 | block:    754.76 (-1.33% W10/L0 p=0.002)
+  B*x0.5  uniform:    756.53 | block:    747.78 (-1.16% W8/L2 p=0.020)
+  B*x1.0  uniform:    749.85 | block:    742.02 (-1.04% W9/L1 p=0.004)
+
+n~200  dirn200m120r150s04i01   paired runs=10
+  B*x0.25 uniform:   1417.66 | block:   1385.18 (-2.29% W10/L0 p=0.002)
+  B*x0.5  uniform:   1409.41 | block:   1378.53 (-2.19% W10/L0 p=0.002)
+  B*x1.0  uniform:   1397.51 | block:   1363.83 (-2.41% W10/L0 p=0.002)
+
+n~200  dirn200m120r150s06i01   paired runs=10
+  B*x0.25 uniform:   1366.44 | block:   1330.26 (-2.65% W10/L0 p=0.002)
+  B*x0.5  uniform:   1352.96 | block:   1321.02 (-2.36% W9/L1 p=0.004)
+  B*x1.0  uniform:   1341.01 | block:   1308.76 (-2.40% W9/L1 p=0.004)
+
+  >> n~200: instances finished=3/3, block better on 3; mean per-instance diff -1.95%; pooled per-run Wilcoxon p=0.0000 (n=30, exploratory); any significantly worse: False; RULE 'generalises' = True
+
+n=400  dirn400m240r150s03i00   paired runs=5
+  B*x0.25 uniform:   2603.65 | block:   2551.80 (-1.99% W5/L0 p=0.062)
+  B*x0.5  uniform:   2592.65 | block:   2533.03 (-2.30% W5/L0 p=0.062)
+  B*x1.0  uniform:   2577.62 | block:   2515.00 (-2.43% W5/L0 p=0.062)
+
+n=400  dirn400m240r150s04i00   paired runs=5
+  B*x0.25 uniform:   3311.71 | block:   3229.22 (-2.49% W5/L0 p=0.062)
+  B*x0.5  uniform:   3291.33 | block:   3197.80 (-2.84% W5/L0 p=0.062)
+  B*x1.0  uniform:   3275.62 | block:   3184.07 (-2.79% W5/L0 p=0.062)
+
+n=400  dirn400m240r150s06i01   paired runs=5
+  B*x0.25 uniform:   3814.94 | block:   3734.69 (-2.10% W5/L0 p=0.062)
+  B*x0.5  uniform:   3797.63 | block:   3705.58 (-2.42% W5/L0 p=0.062)
+  B*x1.0  uniform:   3777.56 | block:   3670.98 (-2.82% W5/L0 p=0.062)
+
+  >> n=400: instances finished=3/3, block better on 3; mean per-instance diff -2.68%; pooled per-run Wilcoxon p=0.0001 (n=15, exploratory); any significantly worse: False; RULE 'generalises' = True
+
+Test-1 rule outcome per size: {'n~100': np.False_, 'n~200': np.True_, 'n=400': np.True_}
+
+
+=== TEST 2: kappa sweep ===
+
+dirn200m120r150s06i00 (all arms, B* = smallest total among ALL arms)   paired runs=10
+  B*x0.25 unif4:   2254.70 | unif2:   2250.58 (-0.18% W7/L3 p=0.322) | bloc2:   2244.41 (-0.46% W7/L3 p=0.275) | bloc4:   2215.53 (-1.74% W9/L1 p=0.004) | bloc6:   2221.03 (-1.49% W9/L1 p=0.004) | bloc8:   2222.76 (-1.42% W10/L0 p=0.002) | bloc12:   2218.34 (-1.61% W10/L0 p=0.002)
+  B*x0.5  unif4:   2242.62 | unif2:   2243.08 (+0.02% W6/L4 p=0.922) | bloc2:   2231.83 (-0.48% W8/L2 p=0.064) | bloc4:   2205.37 (-1.66% W10/L0 p=0.002) | bloc6:   2210.28 (-1.44% W8/L2 p=0.010) | bloc8:   2208.31 (-1.53% W9/L1 p=0.004) | bloc12:   2203.52 (-1.74% W10/L0 p=0.002)
+  B*x1.0  unif4:   2237.26 | unif2:   2237.16 (-0.00% W5/L5 p=0.846) | bloc2:   2225.71 (-0.52% W8/L2 p=0.049) | bloc4:   2195.39 (-1.87% W10/L0 p=0.002) | bloc6:   2196.29 (-1.83% W10/L0 p=0.002) | bloc8:   2196.47 (-1.82% W9/L1 p=0.004) | bloc12:   2195.63 (-1.86% W10/L0 p=0.002)
+  >> best block = bloc4, best uniform = unif2: -1.87% W10/L0 p=0.002; best block vs block4 = +0.00%
+  bloc4 vs best uniform (unif2) @100%: -1.87% W10/L0 p=0.002
+  bloc2 vs bloc4 @100%: +1.38% W1/L9 p=0.004
+  bloc6 vs bloc4 @100%: +0.04% W6/L4 p=1.000
+  bloc8 vs bloc4 @100%: +0.05% W5/L5 p=1.000
+  bloc12 vs bloc4 @100%: +0.01% W4/L6 p=0.922
+  total evals per run (mean) by arm: {'unif4': 3228448, 'unif2': 1658416, 'bloc2': 1652007, 'bloc4': 3222793, 'bloc6': 4772678, 'bloc8': 6300531, 'bloc12': 9318039}
+
+dirn400m240r150s04i00 (all arms, B* = smallest total among ALL arms)   paired runs=5
+  B*x0.25 unif4:   3334.73 | unif2:   3331.91 (-0.08% W3/L2 p=0.625) | bloc2:   3302.10 (-0.98% W5/L0 p=0.062) | bloc4:   3264.05 (-2.12% W5/L0 p=0.062) | bloc6:   3263.05 (-2.15% W5/L0 p=0.062) | bloc8:   3245.86 (-2.66% W5/L0 p=0.062) | bloc12:   3262.57 (-2.16% W5/L0 p=0.062)
+  B*x0.5  unif4:   3310.67 | unif2:   3303.56 (-0.21% W3/L2 p=0.625) | bloc2:   3259.80 (-1.54% W5/L0 p=0.062) | bloc4:   3228.68 (-2.48% W5/L0 p=0.062) | bloc6:   3222.37 (-2.67% W5/L0 p=0.062) | bloc8:   3212.52 (-2.96% W5/L0 p=0.062) | bloc12:   3209.64 (-3.05% W5/L0 p=0.062)
+  B*x1.0  unif4:   3290.78 | unif2:   3283.00 (-0.24% W3/L2 p=0.438) | bloc2:   3233.49 (-1.74% W5/L0 p=0.062) | bloc4:   3197.73 (-2.83% W5/L0 p=0.062) | bloc6:   3186.48 (-3.17% W5/L0 p=0.062) | bloc8:   3187.34 (-3.14% W5/L0 p=0.062) | bloc12:   3172.98 (-3.58% W5/L0 p=0.062)
+  >> best block = bloc12, best uniform = unif2: -3.35% W5/L0 p=0.062; best block vs block4 = -0.77%
+  bloc4 vs best uniform (unif2) @100%: -2.60% W5/L0 p=0.062
+  bloc2 vs bloc4 @100%: +1.12% W0/L5 p=0.062
+  bloc6 vs bloc4 @100%: -0.35% W3/L2 p=0.438
+  bloc8 vs bloc4 @100%: -0.32% W3/L2 p=0.312
+  bloc12 vs bloc4 @100%: -0.77% W4/L1 p=0.438
+  total evals per run (mean) by arm: {'unif4': 6552552, 'unif2': 3351244, 'bloc2': 3314716, 'bloc4': 6525156, 'bloc6': 9695244, 'bloc8': 12858464, 'bloc12': 19146036}
