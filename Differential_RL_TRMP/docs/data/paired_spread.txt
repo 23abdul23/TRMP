@@ -1,0 +1,12 @@
+n=100 runs=10  between-run SD of kappa=4 best at B*: 1.62% of mean
+   kappa=2: paired diff vs kappa=4  mean -0.15%  SD 2.23%  range [-4.13, +2.68]%  SE 0.70%
+   kappa=6: paired diff vs kappa=4  mean -0.61%  SD 1.81%  range [-3.50, +2.09]%  SE 0.57%
+   kappa=8: paired diff vs kappa=4  mean -0.54%  SD 1.91%  range [-3.76, +2.82]%  SE 0.60%
+n=198 runs=10  between-run SD of kappa=4 best at B*: 0.77% of mean
+   kappa=2: paired diff vs kappa=4  mean +0.00%  SD 1.03%  range [-1.44, +1.61]%  SE 0.32%
+   kappa=6: paired diff vs kappa=4  mean +0.02%  SD 0.82%  range [-1.10, +1.48]%  SE 0.26%
+   kappa=8: paired diff vs kappa=4  mean +0.08%  SD 1.00%  range [-1.33, +2.26]%  SE 0.32%
+n=400 runs=3  between-run SD of kappa=4 best at B*: 0.47% of mean
+   kappa=2: paired diff vs kappa=4  mean -0.36%  SD 0.20%  range [-0.58, -0.19]%  SE 0.12%
+   kappa=6: paired diff vs kappa=4  mean +0.44%  SD 0.76%  range [-0.34, +1.18]%  SE 0.44%
+   kappa=8: paired diff vs kappa=4  mean -0.20%  SD 0.20%  range [-0.35, +0.03]%  SE 0.12%

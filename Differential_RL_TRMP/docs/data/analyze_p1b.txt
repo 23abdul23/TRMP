@@ -1,0 +1,18 @@
+== M1/M2: offspring vs parent (mutations only, mid half of run = iterations 1000-3000) ==
+instance                       k  eff_k  tie%   near0.1%  worse%  better%  meanRelWorse  evals/mut
+covers_dirn200m120r150s06i00   2  2    98.4     99.7      0.5      1.1       0.0007        395
+covers_dirn200m120r150s06i00   4  4    95.9     99.0      2.7      1.4       0.0008        786
+covers_dirn200m120r150s06i00   6  6    91.9     97.9      6.3      1.9       0.0008       1173
+covers_dirn200m120r150s06i00   8  8    87.4     95.8     11.1      1.4       0.0009       1556
+
+== M3: equal-evaluation best-so-far, mean over runs, % relative to kappa=4 (negative = better than kappa 4) ==
+covers_dirn200m120r150s06i00   runs=10 B*x0.25  k=2:   2250.58 (-0.18%, W7/L3 p=0.322) | k=4:   2254.70 (+0.00%, W0/L0) | k=6:   2265.36 (+0.47%, W2/L8 p=0.027) | k=8:   2261.70 (+0.31%, W3/L7 p=0.193)
+covers_dirn200m120r150s06i00   runs=10 B*x0.5   k=2:   2243.08 (+0.02%, W6/L4 p=0.922) | k=4:   2242.55 (+0.00%, W0/L0) | k=6:   2254.59 (+0.54%, W1/L9 p=0.014) | k=8:   2251.34 (+0.39%, W3/L7 p=0.160)
+covers_dirn200m120r150s06i00   runs=10 B*x1.0   k=2:   2237.16 (-0.00%, W5/L5 p=0.846) | k=4:   2237.26 (+0.00%, W0/L0) | k=6:   2237.72 (+0.02%, W6/L4 p=0.922) | k=8:   2238.99 (+0.08%, W5/L5 p=1.000)
+
+== M4: strict incumbent gain per 1000 evals (units: % of start cost), by budget quarter ==
+covers_dirn200m120r150s06i00   k=2  Q1: 0.0126  Q2: 0.0016  Q3: 0.0011  Q4: 0.0015
+covers_dirn200m120r150s06i00   k=4  Q1: 0.0069  Q2: 0.0007  Q3: 0.0009  Q4: 0.0009
+covers_dirn200m120r150s06i00   k=6  Q1: 0.0046  Q2: 0.0009  Q3: 0.0006  Q4: 0.0005
+covers_dirn200m120r150s06i00   k=8  Q1: 0.0036  Q2: 0.0005  Q3: 0.0004  Q4: 0.0005
+

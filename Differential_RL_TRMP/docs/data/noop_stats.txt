@@ -1,0 +1,13 @@
+instance                       k  runs | tie%  identical%  plateau%  | % of mutations|  eval share of: identical / tie / all-mut | whole-run budget share (mut+shuffle): identical
+covers_dirn100m060r150s06i03   2  3    |  99.3       18.2      81.1 |               |   18.2 /   99.3 |   17.1
+                                     identical share of ties (mid-run): 18.4%   strict-better 0.21666666666666665 %  worse 0.44999999999999996 %  (iterations 1000-3000)
+covers_dirn100m060r150s06i03   4  3    |  95.1        3.9      91.2 |               |    3.9 /   95.1 |    4.1
+                                     identical share of ties (mid-run): 4.1%   strict-better 0.46666666666666673 %  worse 4.3999999999999995 %  (iterations 1000-3000)
+covers_dirn100m060r150s06i03   8  3    |  80.6        0.1      80.5 |               |    0.1 /   80.6 |    0.1
+                                     identical share of ties (mid-run): 0.1%   strict-better 0.36666666666666664 %  worse 19.0 %  (iterations 1000-3000)
+covers_dirn200m120r150s06i00   2  3    |  98.7       42.5      56.1 |               |   42.5 /   98.7 |   40.0
+                                     identical share of ties (mid-run): 43.1%   strict-better 0.8333333333333334 %  worse 0.46666666666666673 %  (iterations 1000-3000)
+covers_dirn200m120r150s06i00   4  3    |  95.5       16.4      79.1 |               |   16.4 /   95.5 |   15.6
+                                     identical share of ties (mid-run): 17.2%   strict-better 1.8166666666666669 %  worse 2.6833333333333336 %  (iterations 1000-3000)
+covers_dirn200m120r150s06i00   8  3    |  86.9        3.8      83.1 |               |    3.8 /   86.9 |    3.4
+                                     identical share of ties (mid-run): 4.4%   strict-better 1.6 %  worse 11.483333333333333 %  (iterations 1000-3000)
