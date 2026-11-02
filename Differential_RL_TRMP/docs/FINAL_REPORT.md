@@ -121,14 +121,14 @@ The change does not alter the repair operator or the number of candidate evaluat
 
 ## 6. Threats to validity and open items
 
-* The baseline is the *published/reference* table, reproduced exactly by our rebuild for 33 instances (the 31 with n ≤ 100, one n=198, one n=400); the other 27 instances (13 with 100 < n < 400, 14 with n=400) were not re-run with the baseline. A same-session rerun of the baseline on a sample would enable paired per-run tests (the reference file has only per-instance means, so our test is over instances).
+* The baseline is the *published/reference* table, reproduced exactly by our rebuild for 33 instances (the 31 with n ≤ 100, one n=198, one n=400); the other 27 instances (13 with 100 < n < 400, 14 with n=400) were not re-run with the baseline. The reference file has only per-instance means, so the §4 test is over instances; the per-run paired confirmation on a 10-instance subset is in §8 (it closes this gap for that subset).
 * One hyper-parameter setting for block (κ=4, shuffle unchanged and still uniform); κ=12 looked better at n=400 (−0.77 % vs κ=4, 5 runs, not significant).
 * Mechanism is established only to "contiguity of the removed set"; *why* adjacency helps is a hypothesis (joint re-optimisation of groups that share sensor history) — a window-restricted random-subset control would test adjacency vs locality.
 * Exploratory p-values in Tests 1–4 are uncorrected (≈ 25 contrasts per write-up); n=400 cells there have 5 runs (p-value floor 0.0625). The full-protocol result (§4) uses all 60 instances and 20 runs and does not rely on them.
 * The n=400 pure-arm data suggest block is better early and uniform late in the run (one instance, 5 runs; pre-registered rule met only there) — a lead, not a result.
 * No GA-TRMP+LSB comparison (skipped on instruction).
 
-**Suggested next steps (in order of value/cost):** (1) same-session baseline rerun on ≥ 10 instances for per-run paired statistics; (2) block with κ ∈ {6, 8, 12} under the full protocol at n=400; (3) a block-early / uniform-late fixed schedule; (4) window-restricted random-subset control for the mechanism; (5) block-style (contiguous) shuffle; (6) only if (3) shows a confirmed phase-dependent preference, a small learner over {uniform, block} × phase; (7) write-up: lead with the contiguous destroy operator and the controlled negative result for learned κ.
+**Suggested next steps (in order of value/cost):** (1) ~~same-session baseline rerun on ≥ 10 instances for per-run paired statistics~~ — done, see §8; (2) block with κ ∈ {6, 8, 12} under the full protocol at n=400; (3) a block-early / uniform-late fixed schedule; (4) window-restricted random-subset control for the mechanism; (5) block-style (contiguous) shuffle; (6) only if (3) shows a confirmed phase-dependent preference, a small learner over {uniform, block} × phase; (7) write-up: lead with the contiguous destroy operator and the controlled negative result for learned κ.
 
 ---
 
@@ -144,3 +144,58 @@ scripts/full_block.sh 4                          # block, 60 instances x 20 runs
 .venv/bin/python scripts/compare_full.py         # the tables in section 4
 ```
 Environment: `python3 -m venv .venv && .venv/bin/pip install -r scripts/requirements.txt`.
+
+---
+
+## 8. Addendum — same-session baseline and per-run paired confirmation (10 instances)
+
+**Why:** §4 compared `block` against the *published* reference rows, which only contain per-instance means, so the test could only be over instances. To check the result with the strongest paired design, we re-ran the original uniform-destroy ES-TRMP **in this session** on a 10-instance subset and paired it with the `block` runs **run by run**.
+
+**Design.** Same code and protocol for both arms (4,000 iterations, κ=4, shuffle uniform, seeds 1..20). Run *r* of both arms starts from the identical pre-processed solution (`srand(r+1)`), then the trajectories diverge, so the pairing removes start-point variance. Subset (all three apertures, all sizes with headroom): n≈100 — `s03i03` (n=94), `s06i03` (n=100); n≈200 — `s06i00` (n=198), `s03i03`, `s04i01`, `s06i01` (n=200); n=400 — `s03i00`, `s04i00`, `s06i00`, `s06i01`. The `s06i00` n=400 baseline is the earlier 20-run reproduction run; the other nine were run for this addendum. Scripts: `scripts/same_session.sh`, `scripts/analyze_paired.py`; numbers: `docs/data_paired.txt`.
+
+**Validity check.** The same-session uniform mean equals the published reference mean on **10 / 10** instances (|Δ| < 0.001), so the comparison baseline is the genuine ES-TRMP and the paired design is sound.
+
+### 8.1 Per-instance results (20 paired runs each; negative % = block better)
+
+| Instance | n | Uniform mean | Block mean | Change | Runs better / worse | Wilcoxon p (Holm over 10 instances) | Paired effect size dz |
+|---|---|---|---|---|---|---|---|
+| dirn100m060r150s03i03 | 94 | 305.439 | 303.957 | −0.48 % | 13 / 7 | 0.048 (0.08) | −0.50 |
+| dirn100m060r150s06i03 | 100 | 392.536 | 389.603 | −0.73 % | 15 / 5 | 0.040 (0.08) | −0.49 |
+| dirn200m120r150s06i00 | 198 | 2224.518 | 2184.983 | −1.78 % | 20 / 0 | < 0.001 (< 0.001) | −2.29 |
+| dirn200m120r150s03i03 | 200 | 749.745 | 740.870 | −1.18 % | 18 / 2 | < 0.001 (< 0.001) | −1.30 |
+| dirn200m120r150s04i01 | 200 | 1397.124 | 1364.673 | −2.32 % | 20 / 0 | < 0.001 (< 0.001) | −2.25 |
+| dirn200m120r150s06i01 | 200 | 1340.500 | 1308.422 | −2.39 % | 19 / 1 | < 0.001 (< 0.001) | −2.39 |
+| dirn400m240r150s03i00 | 400 | 2569.235 | 2511.092 | −2.26 % | 20 / 0 | < 0.001 (< 0.001) | −3.61 |
+| dirn400m240r150s04i00 | 400 | 3267.053 | 3191.441 | −2.31 % | 20 / 0 | < 0.001 (< 0.001) | −3.03 |
+| dirn400m240r150s06i00 | 400 | 4373.350 | 4270.926 | −2.34 % | 20 / 0 | < 0.001 (< 0.001) | −4.87 |
+| dirn400m240r150s06i01 | 400 | 3801.517 | 3692.783 | −2.86 % | 20 / 0 | < 0.001 (< 0.001) | −3.99 |
+
+(Paired effect size dz = mean of the per-run % difference divided by its SD; |dz| > 0.8 is conventionally "large".)
+
+### 8.2 Pooled (cluster bootstrap over instances, then runs; 95 % interval)
+
+| Group | Instances | Mean change | 95 % CI | Paired runs where block is better |
+|---|---|---|---|---|
+| n ≈ 100 | 2 | −0.60 % | [−1.06, −0.21] | 28 / 40 |
+| n ≈ 200 (198–200) | 4 | −1.92 % | [−2.39, −1.39] | 77 / 80 |
+| n = 400 | 4 | −2.44 % | [−2.74, −2.20] | **80 / 80** |
+| **n ≥ 198** | **8** | **−2.18 %** | **[−2.50, −1.81]** | **157 / 160** |
+| whole subset | 10 | −1.86 % | [−2.33, −1.36] | 185 / 200 |
+
+Wilcoxon over instance means: n ≥ 198, p = 0.0078 (the smallest possible with 8 instances); whole subset, p = 0.0020.
+
+### 8.3 Findings
+
+1. **The headline is confirmed with the strongest design.** At n ≥ 198, block is better in **157 of 160 paired runs** and the pooled mean gain is **−2.18 %** (CI −2.50 … −1.81 %), matching the −2.17 % found against the published table in §4. At n = 400 it wins **all 80** paired runs (−2.44 %).
+2. **The effect is large relative to run-to-run noise** (|dz| between 1.3 and 4.9 at n ≥ 198): the gain is not an artefact of lucky seeds or of comparing against a published table.
+3. **The size dependence is confirmed.** The gain grows from ≈ 0.6 % (n ≈ 100) to ≈ 1.9 % (n ≈ 200) to ≈ 2.4 % (n = 400). At n ≈ 100 it is modest: 28 of 40 runs, per-instance p ≈ 0.04–0.05, which does **not** survive Holm correction across the 10 tests (p = 0.08). Treat n ≈ 100 as "suggestive", consistent with the −0.35 % over the 10 instances of 50 < n ≤ 100 in §4.
+4. **Run-to-run variability is still not reduced.** Median SD ratio (block / uniform) at n ≥ 198 is 1.09 (the SD is about 9 % larger, individual instances range 0.8–1.6). The gain is in the mean, not in consistency.
+5. **The baseline reproducibility claim is strengthened:** a fresh run of the original algorithm reproduced the reference mean on 10 / 10 instances, so differences in §4 cannot be explained by hardware, compiler or code drift.
+
+### 8.4 Limits of this addendum
+* 10 instances (8 with n ≥ 198), not all 60; the full-population statement remains §4 (against the published table, 60 instances); this addendum replaces its weakest assumption (baseline provenance and instance-level pairing) on the subset.
+* Both arms use the same seeds 1..20, so pairing is by start point only; within an instance the 20 runs are not independent of the instance, so the pooled bootstrap resamples instances then runs (only 4 n = 400 instances, so the n = 400 interval is narrower than a fresh-instance interval would be).
+* Block is still tested only at κ=4 with uniform shuffle. The per-state "block early / uniform late" hint (n = 400, one instance) is untouched.
+* Subset selection was by size/aperture coverage and by compute (n = 400 is ~1 h per instance per arm), not by results; the instances were not chosen after seeing outcomes. Two instances (`s06i00` n = 198 and n = 400) were also used in earlier exploratory tests.
+
+**Bottom line after the addendum:** the improvement of contiguous (`block`) destroy over the original ES-TRMP is real, large at n ≥ 198 (≈ 2 %, ≈ 98 % of paired runs), modest at n ≈ 100, absent at n ≤ 50, and does not reduce variance. It costs no extra evaluations per mutation.

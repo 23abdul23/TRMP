@@ -127,3 +127,7 @@ Merged into this branch from agents' worktrees; write-ups: `docs/TEST12_RESULTS.
 ## 10. Final status (full-protocol run complete)
 
 `block` destroy (κ=4) on all 60 instances, 4,000 iterations, 20 runs, vs the reference ES-TRMP rows: n ≥ 198 improved on **26/26** instances, mean **−2.17 %** (p < 0.0001); n=400 **−2.32 %** (15/15); n ≤ 50 ties; run-to-run SD **not** reduced. Full write-up: `docs/FINAL_REPORT.md` (also `FINAL_REPORT.docx`), numbers in `docs/data_full_protocol.txt`. The learned-κ RL method is a controlled negative result (Option B).
+
+## 11. Paired same-session confirmation (10 instances)
+
+Same-session uniform baseline equals the reference mean on 10/10 instances. Per-run paired: n ≥ 198 block better in 157/160 runs, −2.18 % (CI −2.50…−1.81); n=400 80/80, −2.44 %; n≈100 −0.60 % (28/40, not significant after Holm); SD not reduced (ratio 1.09). See `docs/FINAL_REPORT.md` §8 and `docs/data_paired.txt`.
