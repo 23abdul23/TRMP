@@ -1,0 +1,22 @@
+10 instances with 20 paired runs. negative % = block better. Same-session uniform == reference mean on 10/10 instances.
+
+                        inst   n  uni_mean  blk_mean  d_pct  W  T  L     p  p_holm   sd_u   sd_b     dz
+covers_dirn100m060r150s03i03  94   305.439   303.957 -0.478 13  0  7 0.048    0.08  3.641  2.817 -0.497
+covers_dirn100m060r150s06i03 100   392.536   389.603 -0.731 15  0  5 0.040    0.08  6.498  4.849 -0.494
+covers_dirn200m120r150s06i00 198  2224.518  2184.983 -1.775 20  0  0 0.000    0.00 13.914 17.098 -2.286
+covers_dirn200m120r150s03i03 200   749.745   740.870 -1.184 18  0  2 0.000    0.00  6.312  9.519 -1.300
+covers_dirn200m120r150s04i01 200  1397.124  1364.673 -2.319 20  0  0 0.000    0.00 16.591 17.920 -2.245
+covers_dirn200m120r150s06i01 200  1340.500  1308.422 -2.387 19  0  1 0.000    0.00 15.225 13.630 -2.385
+covers_dirn400m240r150s03i00 400  2569.235  2511.092 -2.260 20  0  0 0.000    0.00 21.989 18.644 -3.614
+covers_dirn400m240r150s04i00 400  3267.053  3191.441 -2.312 20  0  0 0.000    0.00 23.352 25.913 -3.028
+covers_dirn400m240r150s06i00 400  4373.350  4270.926 -2.342 20  0  0 0.000    0.00 17.225 27.543 -4.870
+covers_dirn400m240r150s06i01 400  3801.517  3692.783 -2.857 20  0  0 0.000    0.00 33.507 29.563 -3.988
+
+== pooled (cluster bootstrap over instances then runs; Wilcoxon over instance means) ==
+n~100            instances= 2  mean %diff= -0.60  95% CI [-1.06,-0.21]  runs better=28/40  Wilcoxon(instance means) p=nan
+n~200 (198-200)  instances= 4  mean %diff= -1.92  95% CI [-2.39,-1.39]  runs better=77/80  Wilcoxon(instance means) p=nan
+n=400            instances= 4  mean %diff= -2.44  95% CI [-2.74,-2.20]  runs better=80/80  Wilcoxon(instance means) p=nan
+n>=198           instances= 8  mean %diff= -2.18  95% CI [-2.50,-1.81]  runs better=157/160  Wilcoxon(instance means) p=0.0078
+all subset       instances=10  mean %diff= -1.86  95% CI [-2.33,-1.36]  runs better=185/200  Wilcoxon(instance means) p=0.0020
+
+SD ratio (block/uniform), median over n>=198 instances: 1.09
