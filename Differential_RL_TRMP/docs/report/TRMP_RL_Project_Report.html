@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>From ES-TRMP to a better destroy operator: what we changed, tested (including RL) and where the improvement came from</title>
+<style>
+  @page { size: A4; margin: 17mm 16mm 18mm 16mm; }
+  :root { --ink:#1d2330; --muted:#586174; --line:#d5dae3; --blue:#1f4e8c; --green:#1b7837; --red:#b2382b; --amber:#9a6a00; --bg:#f4f6fa; }
+  * { box-sizing: border-box; }
+  body { font-family: "Inter","Helvetica Neue",Arial,"DejaVu Sans",sans-serif; color:var(--ink); font-size:10pt; line-height:1.45; margin:0; }
+  h1 { font-size:21pt; line-height:1.2; margin:0 0 6px; color:var(--blue); }
+  h2 { font-size:14pt; color:var(--blue); margin:20px 0 6px; padding-bottom:3px; border-bottom:2px solid var(--blue); break-after:avoid; }
+  h3 { font-size:11pt; margin:14px 0 4px; break-after:avoid; }
+  p { margin:5px 0 7px; } ul,ol { margin:4px 0 8px 18px; padding:0; } li { margin:2px 0; }
+  .sub { color:var(--muted); font-size:11pt; margin-bottom:10px; }
+  .meta { color:var(--muted); font-size:9pt; border-top:1px solid var(--line); padding-top:6px; margin-top:8px; }
+  .answers { display:grid; grid-template-columns:1fr; gap:8px; margin:12px 0; }
+  .box { border:1px solid var(--line); border-left:5px solid var(--blue); background:var(--bg); padding:8px 12px; border-radius:4px; break-inside:avoid; }
+  .box.no { border-left-color:var(--red); } .box.yes { border-left-color:var(--green); } .box.warn { border-left-color:var(--amber); }
+  .box .q { font-weight:700; font-size:10.5pt; margin-bottom:2px; }
+  table { border-collapse:collapse; width:100%; margin:8px 0 12px; font-size:8.8pt; }
+  th,td { border:1px solid var(--line); padding:4px 6px; vertical-align:top; text-align:left; }
+  th { background:#e8edf5; font-weight:700; } tr { break-inside:avoid; }
+  td.n, th.n { text-align:right; white-space:nowrap; }
+  .good { color:var(--green); font-weight:700; } .bad { color:var(--red); font-weight:700; } .neu { color:var(--muted); }
+  figure { margin:10px 0 12px; break-inside:avoid; } figure img { width:100%; display:block; }
+  figcaption { font-size:8.6pt; color:var(--muted); margin-top:3px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .tag { display:inline-block; font-size:8pt; font-weight:700; padding:1px 6px; border-radius:9px; color:#fff; }
+  .tag.a { background:var(--green); } .tag.d { background:var(--red); } .tag.k { background:var(--amber); }
+  code { font-family:"DejaVu Sans Mono",Consolas,monospace; font-size:8.6pt; background:#eef1f6; padding:0 3px; border-radius:3px; }
+  .pb { break-before:page; }
+  small, .small { font-size:8.6pt; color:var(--muted); }
+</style></head><body>
+
+<!-- ============================ TITLE + ANSWERS ============================ -->
+<h1>From ES-TRMP to a Better Destroy Operator</h1>
+<div class="sub">What we changed, what we decided, how we tested reinforcement learning, and where the improvement really came from</div>
+<div class="meta">Project G2 — RL-guided destroy-and-repair for the Total Rotation Minimization Problem (TRMP) &nbsp;|&nbsp; Base paper: G. Srivastava &amp; A. Singh, <i>Boosting an evolution strategy with a preprocessing step: application to group scheduling problem in directional sensor networks</i>, Applied Intelligence 48:4760–4774, 2018 (ES-TRMP) &nbsp;|&nbsp; Design brief: “Differential Reinforcement Learning for TRMP” v1.0 &nbsp;|&nbsp; Report date: 12 Nov 2026</div>
+
+<h2>1. The short answers</h2>
+<div class="answers">
+  <div class="box no"><div class="q">Did reinforcement learning work?</div>
+  <b>No, not as tested.</b> A tabular differential (average-reward, semi-Markov) Q-learner choosing the destruction size κ ended up equal to simply fixing κ=2 or choosing κ at random. It learned a constant. Discounted Q-learning did no better against its controls. The destruction size κ turned out to have almost no influence on solution quality at equal compute, so there was nothing for a learner to find. This is a controlled negative result, not a failure of implementation (the learner passes its unit tests, respects the evaluation budget to 0.1&nbsp;% and was compared with proper controls).</div>
+  <div class="box yes"><div class="q">Did the results improve over the base TRMP paper?</div>
+  <b>Yes — clearly on large instances.</b> Replacing the random choice of <i>which</i> groups to remove by removing a <b>contiguous block of κ=4 adjacent groups</b> improves ES-TRMP on <b>26 of 26</b> instances with n ≥ 198 (mean <b>−2.17&nbsp;%</b>, range −1.18&nbsp;% to −3.07&nbsp;%), <b>−2.32&nbsp;%</b> on all 15 instances with n=400, using the paper’s own protocol (4,000 iterations, 20 runs, 60 instances). On a run-by-run paired check it wins 157 of 160 runs at n ≥ 198. Small instances (n ≤ 50) are unchanged; the gain at n≈100 is small.</div>
+  <div class="box warn"><div class="q">Did the improvement come from RL?</div>
+  <b>No.</b> It comes from a fixed, non-learned change to the destroy operator. The idea of a “block” destroy was one of the candidate actions listed in the RL design brief, and the RL project’s controlled-experiment machinery is what let us find and verify it, but <b>no learned behaviour contributes to the gain</b>: the learner adds ≈0&nbsp;% beyond constant-κ controls, while the non-learning contiguous operator adds ≈−1.8&nbsp;% at n=198 and ≈−2.7&nbsp;% at n=400 (Sections 4–5).</div>
+</div>
+
+<table>
+<tr><th>Instances (60 total)</th><th class="n">Count</th><th class="n">Mean change vs published ES-TRMP</th><th class="n">Instances improved / tied / worse</th></tr>
+<tr><td>n ≤ 50</td><td class="n">21</td><td class="n neu">0.00&nbsp;%</td><td class="n">7 / 7 / 7 (no headroom)</td></tr>
+<tr><td>50 &lt; n ≤ 100</td><td class="n">10</td><td class="n good">−0.35&nbsp;%</td><td class="n">9 / 0 / 1</td></tr>
+<tr><td>100 &lt; n &lt; 200</td><td class="n">5</td><td class="n good">−1.13&nbsp;%</td><td class="n">5 / 0 / 0</td></tr>
+<tr><td>n = 200</td><td class="n">9</td><td class="n good">−1.97&nbsp;%</td><td class="n">9 / 0 / 0</td></tr>
+<tr><td>n = 400</td><td class="n">15</td><td class="n good">−2.32&nbsp;%</td><td class="n">15 / 0 / 0</td></tr>
+<tr><td><b>n ≥ 198 (headline)</b></td><td class="n"><b>26</b></td><td class="n good"><b>−2.17&nbsp;%</b></td><td class="n"><b>26 / 0 / 0 (Wilcoxon p &lt; 0.0001)</b></td></tr>
+</table>
+<small>Negative = better (lower total rotation). Baseline = the published/reference ES-TRMP rows, which our rebuild reproduces exactly (Section 3). The gain costs no extra evaluations per mutation.</small>
+
+<!-- ============================ BASE PAPER ============================ -->
+<h2>2. The base paper and the plan we started from</h2>
+<h3>2.1 TRMP and ES-TRMP</h3>
+<p>Directional sensors can see only an angular sector. Groups of sensors are activated one after another, and moving from one group to the next requires every newly-active sensor to rotate. Rotation costs energy, so TRMP asks for the order of groups that minimises total rotation. The cost of a group depends on <i>several</i> earlier groups (a sensor keeps its last direction until a later group uses it), so costs cannot be tabulated and TRMP is NP-hard.</p>
+<p><b>ES-TRMP</b> (the base paper) is a (1+1) evolution strategy on permutations with three components: (1) a <b>pre-processing step</b> (NEH insertion heuristic on 20 random solutions and their “opposites”); (2) a <b>destroy-and-repair mutation</b>: remove κ=4 groups chosen uniformly at random, then re-insert them one by one at their cheapest position; elitist acceptance; (3) a <b>shuffle</b> (the same operator with a much larger destruction size δ) after η=100 iterations without improvement. Protocol: 4,000 iterations, 20 independent runs, 60 instances (m = 50, 100, 200, 400 sensors; apertures 2π/3, π/2, π/3). It beat the previous best method (GA-TRMP+LSB) on every instance but was 3–5× slower.</p>
+<h3>2.2 The design brief and its leverage point</h3>
+<p>The brief observed that the <b>repair</b> step is intelligent (greedy, problem-aware) but the <b>destroy</b> step is blind: uniform random choice and a constant κ fixed before the run. It proposed to replace only that step by a learned controller, keeping everything else identical so that any difference is attributable to the controller: <b>differential Q-learning</b> (average-reward; Q and the reward-rate estimate updated by δ = r − R̄·τ + max Q′ − Q), a small state (stagnation, budget progress, recent success rate, …), actions κ ∈ {2,4,6,8} (stage R1), then κ × selection policy (uniform, cost-greedy, history-aware, <b>block</b>; stage R2) and finally a learned shuffle (R3). The reward was the relative cost reduction of the <i>offspring</i>, and fairness was to be enforced by measuring everything in objective evaluations.</p>
+
+<!-- ============================ WHAT WE CHANGED ============================ -->
+<h2>3. What we changed, step by step</h2>
+<table>
+<tr><th style="width:23%">Change / step</th><th>What it is</th><th style="width:30%">Outcome</th></tr>
+<tr><td><b>Reproduce ES-TRMP</b></td><td>Rebuilt the original C code and re-ran it; compared with the repository’s reference table.</td><td>Identical best / mean / SD / best-iteration statistics on all 31 instances with n ≤ 100, on n=198 and on an n=400 instance (4349.337 / 4373.350 / 17.225).</td></tr>
+<tr><td><b>Instrumented driver</b></td><td>Baseline functions lifted unchanged into <code>src/</code>; added an evaluation counter (one count per candidate position tried in repair), a destroy-policy switch, and logging that never touches the random-number stream.</td><td>Bit-identical to the original (tests on n=18, 25, 198 and n=400).</td></tr>
+<tr><td><b>Diagnostic of κ</b></td><td>Fixed κ ∈ {2,4,6,8} with logging of parent vs offspring cost; decision rules written <i>before</i> looking at results.</td><td>κ barely matters; 92–98&nbsp;% of offspring tie the parent’s cost (Section 4.3).</td></tr>
+<tr><td><b>RL learner (stage R1)</b></td><td>Tabular differential and discounted Q-learning over κ, strict equal-budget accounting, own random generator, unit tests on toy MDPs.</td><td>Equals constant-κ controls (Section 4).</td></tr>
+<tr><td><b>New destroy policies</b></td><td><code>cost-greedy</code>, <code>history-aware</code>, <code>block</code> (contiguous), plus control variants (random reinsertion order, wrap-around, sorted reinsertion, mixes).</td><td><code>block</code> works; the others do not (Section 5).</td></tr>
+<tr><td><b>Full-protocol validation</b></td><td><code>block</code>, κ=4, 4,000 iterations, 20 runs, all 60 instances, compared with the reference table.</td><td>26/26 improved at n ≥ 198 (Section 6).</td></tr>
+<tr><td><b>Same-session paired check</b></td><td>Re-ran the original ES-TRMP in the same session on 10 instances and paired it with <code>block</code> run by run (identical seeds, identical pre-processed start).</td><td>Same-session baseline equals the reference mean on 10/10 instances; block better in 157/160 runs at n ≥ 198.</td></tr>
+</table>
+<p>Everything in the destroy-and-repair loop other than <i>which groups are removed</i> is unchanged: pre-processing, greedy repair, acceptance rule, shuffle trigger and size, 4,000 iterations. Findings about the original code that mattered: its command-line seed argument is dead (every run uses seeds 1…20), it accepts equal-cost offspring, shuffle size is ⌊n/7⌋ (the brief says ⌈n/7⌉), and its total evaluation count varies per run because shuffles are more expensive than normal mutations.</p>
+
+<!-- ============================ RL TESTS ============================ -->
+<h2>4. How we tested RL, what performed, and whether it worked</h2>
+<h3>4.1 The RL experiment</h3>
+<p><b>Learner.</b> State: stagnation u (4 bins) × budget progress β (4 bins) = 16 states. Actions: κ ∈ {2, 4, 6, 8}, uniform destroy. Update: <code>δ = r − R̄·τ + max Q(s′,·) − Q(s,a)</code>, <code>Q += αδ</code>, <code>R̄ += η<sub>RL</sub>·α·δ</code> with α=0.1, η<sub>RL</sub>=0.2, ε-greedy annealed 0.30→0.02. Reward: relative cost reduction of the <i>offspring before acceptance</i>, signed-log compressed (constant calibrated on a different instance). τ = evaluations consumed by the action. A discounted twin (γ=0.9) shared everything else. Acceptance, repair, shuffle and pre-processing were the baseline’s; the run stopped on the same evaluation budget the baseline used in the same run (observed parity within 0.098&nbsp;%).</p>
+<p><b>Controls</b> run through the identical loop: <b>fixed κ=2</b> and <b>random κ</b>. If the learner were useful it would have to beat these, not just the paper’s fixed κ=4.</p>
+<p><b>Protocol (reduced, as agreed).</b> n=100 and n=198: 10 paired runs; n=400: 3 runs. Paired by run index, compared at equal evaluation counts.</p>
+<h3>4.2 Results</h3>
+<table>
+<tr><th>Instance (runs)</th><th>Method</th><th class="n">vs uniform κ=4</th><th class="n">p (vs κ=4)</th><th>RL vs the κ-only controls</th></tr>
+<tr><td rowspan="5">n=100 (10)</td><td>fixed κ=2 (control)</td><td class="n">−0.44&nbsp;%</td><td class="n">0.63</td><td></td></tr>
+<tr><td>random κ (control)</td><td class="n">−0.49&nbsp;%</td><td class="n">0.63</td><td></td></tr>
+<tr><td><b>RL differential</b></td><td class="n">−0.47&nbsp;%</td><td class="n">0.63</td><td>vs fixed κ=2: −0.03&nbsp;% (p=0.56) → no gain</td></tr>
+<tr><td><b>RL discounted γ=0.9</b></td><td class="n">−1.10&nbsp;%</td><td class="n">0.027</td><td>vs fixed κ=2: −0.66&nbsp;% (p=0.19); vs random κ: −0.62&nbsp;% (p=0.084) → not established</td></tr>
+<tr><td>block (no learning)</td><td class="n good">−0.97&nbsp;%</td><td class="n">0.084</td><td></td></tr>
+<tr><td rowspan="5">n=198 (10)</td><td>fixed κ=2 (control)</td><td class="n">−0.01&nbsp;%</td><td class="n">0.92</td><td></td></tr>
+<tr><td>random κ (control)</td><td class="n">+0.13&nbsp;%</td><td class="n">0.63</td><td></td></tr>
+<tr><td><b>RL differential</b></td><td class="n">−0.15&nbsp;%</td><td class="n">0.13</td><td>vs fixed κ=2: −0.14&nbsp;% (p=0.63) → no gain</td></tr>
+<tr><td><b>RL discounted γ=0.9</b></td><td class="n">−0.05&nbsp;%</td><td class="n">0.63</td><td>vs fixed κ=2: −0.05&nbsp;% (p=0.85) → no gain</td></tr>
+<tr><td>block (no learning)</td><td class="n good">−1.79&nbsp;%</td><td class="n good">0.002</td><td></td></tr>
+<tr><td rowspan="3">n=400 (3; block 5)</td><td>fixed κ=2 (control)</td><td class="n">−0.74&nbsp;%</td><td class="n">0.25 (min.)</td><td></td></tr>
+<tr><td><b>RL differential</b></td><td class="n">−0.25&nbsp;%</td><td class="n">0.75</td><td class="bad">vs fixed κ=2: +0.49&nbsp;% (worse)</td></tr>
+<tr><td>block (no learning)</td><td class="n good">−2.66&nbsp;%</td><td class="n">0.0625 (min., 5/5)</td><td></td></tr>
+</table>
+<figure><img src="../figures/fig7_rl_vs_controls.png"><figcaption>Figure 1. Equal-evaluation best-so-far at 100&nbsp;% of the budget, % relative to the paper’s uniform κ=4 (negative = better), same instance per panel. Grey: κ-only controls; red: RL; green: block destroy (no learning).</figcaption></figure>
+
+<h3>4.3 Did it work? Why not</h3>
+<ul>
+<li><b>The learner converged to a constant.</b> Its greedy policy is “κ=2” in essentially every state, and its reward-rate estimate R̄ changed sign 26–72 times per run — it was chasing noise, not tracking a structured signal.</li>
+<li><b>Its small gains over κ=4 are explained by cost, not by learning.</b> κ=2 is cheaper per mutation, so in a fixed evaluation budget it simply performs 20–90&nbsp;% more iterations. The controls (fixed κ=2, random κ) reproduce the same gains.</li>
+<li><b>κ has no headroom.</b> At n=198 every κ ∈ {2,4,6,8} ends within 0.08&nbsp;% of κ=4 at equal evaluations (all p&gt;0.8); at n=400 with 10 paired runs κ=2 vs κ=4 is +0.05&nbsp;% (p=0.77). The early-looking advantages for κ=2 at n=400 (−0.36&nbsp;% and −0.74&nbsp;% on 3 runs) were noise. Larger κ only produces more <i>worse</i> offspring (2–4&nbsp;% at κ=4 up to 11–18&nbsp;% at κ=8 mid-run) while the share of <i>better</i> offspring stays at about 1–3&nbsp;% — and it costs κ/2 times more evaluations.</li>
+<li><b>The landscape is mostly flat for this operator.</b> 92–98&nbsp;% of offspring have exactly the parent’s cost. Most of these are plateau moves (a different permutation with equal cost, accepted by the code); only about 4&nbsp;% (n=100) to 16&nbsp;% (n=198) of the evaluation budget is spent on truly identical permutations. Improvements are rare (≈1–3&nbsp;% of mutations early, &lt;0.5&nbsp;% late), so the reward signal is sparse and a learner has little to learn from.</li>
+<li><b>A numerical fix was needed.</b> With τ in raw evaluations (hundreds per step) the coupled estimate diverged to NaN within 7–10 iterations (the “coupled-estimate instability” the brief warns about). τ is now measured in units of one κ=4 mutation; a divergence guard was added. This is a stability fix, not tuning on results.</li>
+<li><b>No state-dependent preference between operators either.</b> Tests of mixing uniform and block destroy found pure block best at n ≤ 198, and no significant state cell favouring uniform. Strict improvements are too rare in late / high-stagnation states to resolve any state dependence at this sample size.</li>
+</ul>
+<figure><img src="../figures/fig1_outcomes_vs_kappa.png"><figcaption>Figure 2. Mid-run (iterations 1000–3000) fate of offspring vs parent as κ grows (uniform destroy): ties fall, worse offspring rise sharply, better offspring barely change.</figcaption></figure>
+<figure><img src="../figures/fig3_equal_budget_best.png"><figcaption>Figure 3. Best-so-far vs common evaluation budget, difference to κ=4 (paired runs; band = min–max). No κ is reliably better than κ=4 at the end of the budget.</figcaption></figure>
+<h3>4.4 What RL was <u>not</u> tested on (so the negative result is not over-read)</h3>
+<ul>
+<li>Only the reduced protocol was used (n=100/198: 10 runs; n=400: 3 runs), not the full 60-instance study; one instance per size.</li>
+<li>The learner chose only κ with uniform destroy. A learner over <i>operators</i> (uniform / block / …) and a learned shuffle (stage R3) were not built, because the experiments showed no state-dependent preference to learn (Section 5).</li>
+<li>Discounted RL at n=100 was nominally the best arm on that instance (−1.10&nbsp;%, p=0.027 vs κ=4) but is not significantly better than its controls (p=0.19 and p=0.084) and did not replicate at n=198 (−0.05&nbsp;%). It is an unresolved lead at most.</li>
+<li>No RL variant was tried with block destroy as the base operator.</li>
+</ul>
+
+<!-- ============================ WHERE IMPROVEMENT CAME FROM ============================ -->
+<h2>5. Where did the improvement come from? — RL or not?</h2>
+<p><b>Answer: not from RL.</b> The following attribution table collects every candidate source of gain, measured at equal evaluations against the paper’s uniform κ=4 (paired runs).</p>
+<table>
+<tr><th style="width:27%">Candidate source</th><th style="width:36%">Measured effect</th><th>Verdict</th></tr>
+<tr><td>Choosing a different κ (fixed κ=2…12, uniform destroy)</td><td>n=198: all within 0.08&nbsp;%; n=400 (10 runs): κ=2 vs 4 +0.05&nbsp;%, p=0.77</td><td class="neu">No effect</td></tr>
+<tr><td><b>Learning κ</b> (RL differential)</td><td>vs fixed κ=2: −0.14&nbsp;% (n=198, p=0.63), −0.03&nbsp;% (n=100, p=0.56), +0.49&nbsp;% worse (n=400, 3 runs)</td><td class="bad">No measurable gain</td></tr>
+<tr><td><b>Learning κ</b> (RL discounted)</td><td>vs controls at n=100: −0.62 … −0.66&nbsp;% (p=0.084 / 0.19); n=198: ≈−0.05&nbsp;%</td><td class="neu">Not established</td></tr>
+<tr><td>Reinsertion order in the repair</td><td>uniform with sorted reinsertion +0.10&nbsp;%; block with random vs sorted order −0.18&nbsp;% (p=0.32)</td><td class="neu">No effect</td></tr>
+<tr><td>Removing the <i>costliest</i> groups (<code>cost-greedy</code>)</td><td>no gain at any size</td><td class="neu">No effect</td></tr>
+<tr><td>History-aware removal (the brief’s novelty claim)</td><td>no effect at n ≤ 198; −0.29&nbsp;% at n=400 (5 runs, p=0.0625), worse early in the run</td><td class="neu">Unproven</td></tr>
+<tr><td><b>Removing a contiguous run of adjacent groups</b></td><td>n=198: <b>−1.79&nbsp;%</b> (10/10 runs, p=0.002); n=400: <b>−2.66&nbsp;%</b> (5/5 runs); random-order and wrap-around variants −1.6&nbsp;%</td><td class="good">The source of the gain</td></tr>
+</table>
+<figure><img src="../figures/fig8_attribution_n198.png"><figcaption>Figure 4. n=198 (10 paired runs), equal-evaluation best-so-far relative to uniform κ=4. Every learning arm and every κ-only control sits near zero; every arm that removes adjacent groups gains 1.1–1.8&nbsp;%, with a dose-response in the share of block moves.</figcaption></figure>
+<h3>5.1 What the controls say about <i>why</i> the contiguous operator works</h3>
+<ul>
+<li><b>Contiguity is the active ingredient.</b> Block with random reinsertion order beats uniform with sorted reinsertion by −1.71&nbsp;% (10/10 runs, p=0.002). Reinsertion order, block’s start distribution (wrap-around) and the cost of the removed groups do not explain it — block actually removes slightly <i>cheaper</i> groups than a uniform draw.</li>
+<li><b>It works by more frequent ordinary-sized improvements, early.</b> At n=198 strict improvements occur ~14&nbsp;% more often per mutation (333 vs 291 per 10,000) with the same size per success; the advantage is already visible after the first quarter of the budget and then persists.</li>
+<li><b>Mixing does not help:</b> a 25/50/75&nbsp;% share of block moves gives −1.1 / −1.1 / −1.35&nbsp;%, pure block −1.79&nbsp;% — the more block, the better, with no interior optimum.</li>
+<li><b>Hypothesis (not tested):</b> adjacent groups share sensor-orientation history, so removing them together lets the greedy repair re-optimise them jointly, whereas widely separated removals behave like independent single-group re-insertions that an already-converged search rarely improves. A window-restricted random-subset control would separate adjacency from locality.</li>
+</ul>
+<h3>5.2 What the RL project did contribute</h3>
+<ul>
+<li><b>The candidate list.</b> “Block” was one of the four destroy-selection policies proposed in the brief’s stage R2, so the RL design is where the idea entered the project.</li>
+<li><b>The experimental discipline.</b> Equal-evaluation accounting, paired seeds, logged parent/offspring costs, pre-registered decision rules and control arms are what exposed that κ is irrelevant and that block works.</li>
+<li><b>A clean negative result</b> about learned destruction size, and the infrastructure to test learned operator choice if a state-dependent signal ever appears.</li>
+</ul>
+<div class="box warn"><div class="q">Why a fixed operator beats a learned one here</div>
+A learner can only add value when the <i>best action changes with the search state</i>. For κ, no action is better than another at equal compute, so the optimum is a constant. For the destroy-selection operator one action (contiguous removal) is better in <i>every</i> state we could resolve at n ≥ 198, so a fixed choice already captures the whole gain. The only hint of state dependence (block better early, uniform better in the last quarter, at n=400, one instance, 5 runs) is unconfirmed.</div>
+
+<!-- ============================ FINAL RESULTS ============================ -->
+<h2>6. Final results against the base TRMP paper</h2>
+<p><b>Setup identical to the paper except the destroy step:</b> 4,000 iterations, 20 runs (seeds 1…20), κ=4, uniform shuffle, same pre-processing, repair and acceptance, all 60 instances. Baseline = the published/reference ES-TRMP rows (exactly reproduced by our rebuild).</p>
+<figure><img src="../figures/fig6_full_protocol.png"><figcaption>Figure 5. Change in the 20-run mean solution cost, per instance, grouped by size (negative = better than the base paper). Colours show the sensing aperture.</figcaption></figure>
+<table>
+<tr><th>Aperture φ (n ≥ 198)</th><th class="n">Instances</th><th class="n">Mean change</th><th class="n">Improved</th><th class="n">Wilcoxon p</th></tr>
+<tr><td>2π/3</td><td class="n">7</td><td class="n good">−1.83&nbsp;%</td><td class="n">7/7</td><td class="n">0.0156</td></tr>
+<tr><td>π/2</td><td class="n">9</td><td class="n good">−2.12&nbsp;%</td><td class="n">9/9</td><td class="n">0.0039</td></tr>
+<tr><td>π/3 (hardest)</td><td class="n">10</td><td class="n good">−2.45&nbsp;%</td><td class="n">10/10</td><td class="n">0.0020</td></tr>
+</table>
+<h3>6.1 Examples (total rotation in radians, as in the paper)</h3>
+<table>
+<tr><th>Instance</th><th class="n">GA-TRMP+LSB mean (paper)</th><th class="n">ES-TRMP mean (paper)</th><th class="n">With contiguous destroy</th><th class="n">Change vs ES-TRMP</th></tr>
+<tr><td>dirn200m120r150s06i00 (n=198)</td><td class="n">2311.846</td><td class="n">2224.518</td><td class="n">2184.983</td><td class="n good">−1.78&nbsp;%</td></tr>
+<tr><td>dirn400m240r150s06i00 (n=400)</td><td class="n">4594.853</td><td class="n">4373.350</td><td class="n">4270.926</td><td class="n good">−2.34&nbsp;%</td></tr>
+<tr><td>dirn400m240r150s06i01 (n=400)</td><td class="n">4015.341</td><td class="n">3801.517</td><td class="n">3692.783</td><td class="n good">−2.86&nbsp;%</td></tr>
+<tr><td>dirn400m240r150s06i02 (n=400, largest gain)</td><td class="n">4146.541</td><td class="n">3920.388</td><td class="n">3800.164</td><td class="n good">−3.07&nbsp;%</td></tr>
+</table>
+<small>GA-TRMP+LSB figures are the paper’s own table values, quoted for context only; we did not re-run the GA.</small>
+<h3>6.2 Run-by-run paired confirmation (10 instances, original algorithm re-run in this session)</h3>
+<table>
+<tr><th>Group</th><th class="n">Instances</th><th class="n">Mean change</th><th class="n">95&nbsp;% CI</th><th class="n">Runs where block is better</th></tr>
+<tr><td>n ≈ 100</td><td class="n">2</td><td class="n good">−0.60&nbsp;%</td><td class="n">[−1.06, −0.21]</td><td class="n">28 / 40</td></tr>
+<tr><td>n ≈ 200 (198–200)</td><td class="n">4</td><td class="n good">−1.92&nbsp;%</td><td class="n">[−2.39, −1.39]</td><td class="n">77 / 80</td></tr>
+<tr><td>n = 400</td><td class="n">4</td><td class="n good">−2.44&nbsp;%</td><td class="n">[−2.74, −2.20]</td><td class="n">80 / 80</td></tr>
+<tr><td><b>n ≥ 198</b></td><td class="n"><b>8</b></td><td class="n good"><b>−2.18&nbsp;%</b></td><td class="n"><b>[−2.50, −1.81]</b></td><td class="n"><b>157 / 160</b></td></tr>
+</table>
+<p>The re-run original algorithm reproduced the reference mean on 10 of 10 instances, so the comparison baseline is the genuine ES-TRMP. Effect sizes are large (paired |dz| between 1.3 and 4.9 at n ≥ 198), i.e. many standard errors from seed noise. At n≈100 the per-instance p-values (≈0.04–0.05) do not survive Holm correction (0.08): treat that size as suggestive.</p>
+<h3>6.3 What did <u>not</u> improve</h3>
+<ul>
+<li><b>Small instances (n ≤ 50): no change</b> (the paper already reports SD=0 on many; no headroom). n≈50–100: small (−0.35&nbsp;%).</li>
+<li><b>Variance is not reduced.</b> The run-to-run SD is about 9–12&nbsp;% <i>larger</i> at n ≥ 198, so the brief’s “variance reduction is the more probable win” expectation is not supported; the gain is in the mean.</li>
+<li>Eight small instances (n ≤ 78) have a marginally worse mean (≤ 0.52&nbsp;%) — noise on problems the algorithm already converges on.</li>
+</ul>
+<h3>6.4 Compute cost</h3>
+<p>The operator changes no repair work: candidate evaluations per mutation are identical (e.g. 6.57 M vs 6.53 M per n=400 run) and CPU time per run is within ±15&nbsp;% of the original (n≈200: 45&nbsp;s original vs 39&nbsp;s; n=400: 238&nbsp;s vs 254&nbsp;s, measured with parallel jobs sharing the machine, so approximate). The full 60-instance × 20-run study took 22.1 CPU-hours.</p>
+
+<!-- ============================ ADOPTED / DISREGARDED ============================ -->
+<h2>7. What we adopted and what we disregarded</h2>
+<table>
+<tr><th style="width:5%"></th><th style="width:28%">Item</th><th>Why</th></tr>
+<tr><td><span class="tag a">ADOPTED</span></td><td><b>Contiguous (block) destroy, κ=4</b></td><td>Only change with a robust, large, size-dependent gain (26/26 instances at n ≥ 198); no extra evaluations; controls show contiguity is the cause.</td></tr>
+<tr><td><span class="tag a">ADOPTED</span></td><td>Equal-evaluation budget accounting, paired seeds</td><td>Prevents an action that merely spends more compute from looking better; pairing removes start-point variance.</td></tr>
+<tr><td><span class="tag a">ADOPTED</span></td><td>Pre-registered decision rules and control arms</td><td>Stops results from being fitted after the fact; exposed that κ-learning has no headroom.</td></tr>
+<tr><td><span class="tag a">ADOPTED</span></td><td>Instrumented driver, exact-reproduction and equivalence tests</td><td>Every number is traceable to code that matches the original bit for bit.</td></tr>
+<tr><td><span class="tag a">ADOPTED</span></td><td>Paper’s protocol for the headline, same-session baseline for paired confirmation</td><td>Comparable to the published table, plus a design that does not depend on published numbers.</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td>Learning κ (differential and discounted Q-learning)</td><td>κ has no headroom; the learner equals constant-κ controls and is worse than fixed κ=2 at n=400.</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td><code>cost-greedy</code> destroy</td><td>No gain at any size; block removes cheaper groups than uniform yet wins, so cost is not the mechanism.</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td><code>history-aware</code> destroy (brief’s novelty claim)</td><td>No effect at n ≤ 198; −0.29&nbsp;% at n=400 on 5 runs (p=0.0625) and worse early — unproven.</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td>Mixing uniform and block per mutation</td><td>Pure block beats every mix (clear dose-response).</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td>Learner over operators (R2) and learned shuffle (R3)</td><td>No state-dependent preference resolvable at n ≤ 198; not built.</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td>τ in raw evaluations; “differential beats discounted” as a claim</td><td>Raw τ diverged to NaN; the discounted/differential difference is not supported against the controls.</td></tr>
+<tr><td><span class="tag d">DROPPED</span></td><td>GA-TRMP+LSB re-run</td><td>Skipped on instruction; paper values quoted only for context.</td></tr>
+<tr><td><span class="tag k">CORRECTED</span></td><td>“Most budget is wasted on no-ops”; “κ=2 beats κ=4 at n=400”</td><td>True no-ops are only ≈4–16&nbsp;% of the budget (most ties are plateau moves); the κ=2 gain on 3 runs was noise (10 runs: +0.05&nbsp;%, p=0.77).</td></tr>
+</table>
+
+<h2>8. Decision log (chronological)</h2>
+<table>
+<tr><th style="width:4%">#</th><th style="width:34%">Evidence in hand</th><th>Decision</th></tr>
+<tr><td>1</td><td>Brief + base paper read; design says only the destroy step is replaced.</td><td>Keep everything else bit-identical; make equal-evaluation accounting the fairness rule.</td></tr>
+<tr><td>2</td><td>Rebuild reproduces published rows exactly (32/32 plus n=400).</td><td>Trust the code base; use published rows as the baseline.</td></tr>
+<tr><td>3</td><td>κ diagnostic: 92–98&nbsp;% ties, κ irrelevant at equal budget.</td><td>Stop treating κ as the lever; keep the diagnostic method.</td></tr>
+<tr><td>4</td><td>Three parallel experiments: more κ runs + destroy policies; RL learner; write-up of the κ result.</td><td>κ result confirmed negative; <code>block</code> found promising; RL learner ≈ constant κ=2.</td></tr>
+<tr><td>5</td><td>Validation on 3 instances per size across apertures; κ sweep; mechanism and mix controls.</td><td>Adopt block (gain at n ≳ 200, not at n≈100); κ=4 kept; mixes dropped; contiguity is the mechanism.</td></tr>
+<tr><td>6</td><td>Full protocol on all 60 instances: 26/26 improved at n ≥ 198.</td><td>Make this the headline result.</td></tr>
+<tr><td>7</td><td>Same-session baseline: reference reproduced 10/10; 157/160 paired runs better.</td><td>Confirm the claim with the strongest paired design; report variance honestly (not reduced).</td></tr>
+</table>
+
+<h2>9. Limits and next steps</h2>
+<ul>
+<li><b>Baseline source:</b> the 60-instance comparison is against the published/reference rows (reproduced exactly for 33 instances); the paired same-session design covers 10 instances (8 with n ≥ 198).</li>
+<li><b>Scope:</b> block tested at κ=4 with uniform shuffle; κ=12 looked ≈0.8&nbsp;% better at n=400 in exploratory runs (5 runs, not significant). The mechanism is established only to “contiguity of the removed set”.</li>
+<li><b>Exploratory statistics:</b> the earlier mechanism/mix tests have uncorrected p-values and few runs at n=400 (5 runs ⇒ smallest possible p = 0.0625); the 60-instance and 10-instance paired results do not depend on them.</li>
+<li><b>Suggested next steps:</b> (1) full-protocol block with κ ∈ {6, 8, 12} at n=400; (2) a block-early / uniform-late fixed schedule; (3) a window-restricted random-subset control (adjacency vs locality); (4) a contiguous shuffle; (5) only if (2) reveals a confirmed phase-dependent preference, a small learner over {uniform, block} × phase; (6) GA-TRMP+LSB re-run for a complete comparison.</li>
+</ul>
+
+<h2>Appendix — reproducibility</h2>
+<p>Repository: <code>Differential_RL_TRMP/</code> (branch <code>master</code>). Full report with all tables: <code>docs/FINAL_REPORT.md</code>; decision log: <code>docs/DECISION.md</code>; RL experiment: <code>docs/OPTION_B_RESULTS.md</code>; block validation: <code>docs/TEST12_RESULTS.md</code>; mechanism and mixes: <code>docs/TEST34_RESULTS.md</code>; raw numbers: <code>docs/data_full_protocol.txt</code>, <code>docs/data_paired.txt</code>.</p>
+<p><code>make out/es_drl</code> &nbsp;→&nbsp; <code>bash tests/test_equiv.sh</code> (driver ≡ original) &nbsp;→&nbsp; <code>scripts/full_block.sh 4</code> (60 instances × 20 runs) &nbsp;→&nbsp; <code>.venv/bin/python scripts/compare_full.py</code> (Section 6 tables). The learner’s driver integration lives on branch <code>option-b-r1</code> (not merged because it overlaps with the destroy-policy edits).</p>
+</body></html>
