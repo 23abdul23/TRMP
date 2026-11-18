@@ -1,4 +1,4 @@
-// usage: node scripts/html_to_pdf.js <input.html> <output.pdf>   (Playwright's bundled Chromium)
+// usage: node RM-Report/scripts/html_to_pdf.js <input.html> <output.pdf>   (Playwright's bundled Chromium)
 const { chromium } = require('playwright'); const path = require('path');
 (async () => {
   const [inp, out] = process.argv.slice(2);

@@ -1,6 +1,6 @@
 # Test 1 + 2 results — does `block` destroy generalise, and what is its best kappa?
 
-Pre-registration: `docs/TEST12_RULES.md` (committed before any run). Full numeric output: `docs/data/test12_analysis.txt`
+Pre-registration: `docs/TEST12_RULES.md` (committed before any run). Full numeric output: `RM-Report/data/test12_analysis.txt`
 (reproduce: `scripts/sched_t12.sh` with `scripts/t12_jobs.txt`, then `scripts/analyze_t12.py`).
 Method: baseline ES-TRMP, 4000 iterations, eta=100/delta-ladder shuffle **uniform** (only the mutation's destroy selection changes),
 srand(run+1) pairing, comparison = best-so-far at equal cumulative candidate evaluations (`findcost_d` calls), 25/50/100 % of the smaller

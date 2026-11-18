@@ -1,6 +1,6 @@
 # DECISION — end of Phases 0–2 (go / no-go for Differential-RL destruction control)
 
-Date: 2026-10-31. Rules were fixed in `docs/DECISION_RULES_PHASE1.md` before any diagnostic result was seen.
+Date: 2026-10-31. Rules were fixed in `Differential_RL_TRMP/docs/DECISION_RULES_PHASE1.md` before any diagnostic result was seen.
 
 ## 1. Verdict
 
@@ -98,8 +98,8 @@ Python env: `.venv` (numpy, scipy, matplotlib, pandas, odfpy); `scripts/requirem
 
 ## 8. Update — Options A, B, C were run (3 agents, separate worktrees, exploratory, not yet merged)
 
-Branches (local, not pushed): A `worktree-agent-aca907d2c67746012` (docs/OPTION_A_RESULTS.md), B `option-b-r1` (docs/OPTION_B_RESULTS.md),
-C `worktree-agent-ad7233bf917520519` (docs/OPTION_C_WRITEUP.md + figures).
+Branches (local, not pushed): A `worktree-agent-aca907d2c67746012` (Differential_RL_TRMP/docs/OPTION_A_RESULTS.md), B `option-b-r1` (Differential_RL_TRMP/docs/OPTION_B_RESULTS.md),
+C `worktree-agent-ad7233bf917520519` (Differential_RL_TRMP/docs/OPTION_C_WRITEUP.md + figures).
 
 * **κ-only learning has no headroom (A, B, C agree).** n=400, 10 paired runs: κ=2 vs κ=4 is +0.05 % (4 wins/6 losses, p=0.77) — the earlier −0.36 % (3 runs) and B's
   −0.74 % (3 runs) were noise. B's R1 learner (differential, SMDP) matches fixed κ=2 / random κ at n=100 and n=198 (−0.03 %, −0.14 % vs κ=2, p>0.5), converges to
@@ -113,10 +113,10 @@ C `worktree-agent-ad7233bf917520519` (docs/OPTION_C_WRITEUP.md + figures).
 
 ## 9. Update — Tests 1–5 (block validation, κ sweep, mechanism, mixes, n=400 reproduction)
 
-Merged into this branch from agents' worktrees; write-ups: `docs/TEST12_RESULTS.md`, `docs/TEST34_RESULTS.md`. All exploratory (one instance per cell, κ=4 unless stated, uncorrected p-values, equal-evaluation comparison vs uniform destroy).
+Merged into this branch from agents' worktrees; write-ups: `Differential_RL_TRMP/docs/TEST12_RESULTS.md`, `Differential_RL_TRMP/docs/TEST34_RESULTS.md`. All exploratory (one instance per cell, κ=4 unless stated, uncorrected p-values, equal-evaluation comparison vs uniform destroy).
 
 * **Test 5 — n=400 reproduction: DONE.** 20 runs of `dirn400m240r150s06i00` with the new driver give 4349.337 / 4373.350 / 17.225 and best-iteration 3466.6 / 550.52 — **identical to the published/reference row**, so driver ≡ baseline also at n=400.
-* **Test 1 — does `block` generalise?** Pre-registered rule (`docs/TEST12_RULES.md`): better at 100 % budget on ≥2 of 3 instances per size, none significantly worse, mean gain ≥ 0.5 %.
+* **Test 1 — does `block` generalise?** Pre-registered rule (`Differential_RL_TRMP/docs/TEST12_RULES.md`): better at 100 % budget on ≥2 of 3 instances per size, none significantly worse, mean gain ≥ 0.5 %.
   n≈100 (10 runs): better on 1/3, mean −0.04 % → **rule NOT met** (early advantage fades). n≈200 (10 runs): 3/3, p≤0.004 each, mean −1.95 % → **met**. n=400 (5 runs): 3/3, 15/15 paired runs favour block, mean −2.68 % → **met** (smallest possible p with 5 runs is 0.0625). So: real at n≳200, not at n≈100.
 * **Test 2 — κ for block:** κ=2 clearly worse (+1.38 % vs κ=4, p=0.004 at n=198); κ=4,6,8,12 equivalent at n=198; κ=12 maybe −0.77 % at n=400, not significant (5 runs; compared at ~17 % of its own run). Block κ=4 beats the best uniform κ (=2) by −1.87 % (n=198) and −2.60 % (n=400).
 * **Test 3 — mechanism:** the active ingredient is removing a *contiguous run of adjacent groups* (block-with-random-reinsertion beats uniform-with-sorted-reinsertion by −1.71 %, 10/0, p=.002 at n=198). Not reinsertion order, not edge handling (`wrap` equal), not removed-set cost (block removes slightly *cheaper* groups). Block makes strict improvements ~14 % more often with the same size per success; the edge is built in the first quarter of the budget. *Why* adjacency helps (joint re-optimisation of groups sharing sensor history) is an untested hypothesis; a window-restricted random-subset control would test it.
@@ -126,8 +126,8 @@ Merged into this branch from agents' worktrees; write-ups: `docs/TEST12_RESULTS.
 
 ## 10. Final status (full-protocol run complete)
 
-`block` destroy (κ=4) on all 60 instances, 4,000 iterations, 20 runs, vs the reference ES-TRMP rows: n ≥ 198 improved on **26/26** instances, mean **−2.17 %** (p < 0.0001); n=400 **−2.32 %** (15/15); n ≤ 50 ties; run-to-run SD **not** reduced. Full write-up: `docs/FINAL_REPORT.md` (also `FINAL_REPORT.docx`), numbers in `docs/data_full_protocol.txt`. The learned-κ RL method is a controlled negative result (Option B).
+`block` destroy (κ=4) on all 60 instances, 4,000 iterations, 20 runs, vs the reference ES-TRMP rows: n ≥ 198 improved on **26/26** instances, mean **−2.17 %** (p < 0.0001); n=400 **−2.32 %** (15/15); n ≤ 50 ties; run-to-run SD **not** reduced. Full write-up: `RM-Report/project_report/FINAL_REPORT.md` (also `FINAL_REPORT.docx`), numbers in `RM-Report/data/data_full_protocol.txt`. The learned-κ RL method is a controlled negative result (Option B).
 
 ## 11. Paired same-session confirmation (10 instances)
 
-Same-session uniform baseline equals the reference mean on 10/10 instances. Per-run paired: n ≥ 198 block better in 157/160 runs, −2.18 % (CI −2.50…−1.81); n=400 80/80, −2.44 %; n≈100 −0.60 % (28/40, not significant after Holm); SD not reduced (ratio 1.09). See `docs/FINAL_REPORT.md` §8 and `docs/data_paired.txt`.
+Same-session uniform baseline equals the reference mean on 10/10 instances. Per-run paired: n ≥ 198 block better in 157/160 runs, −2.18 % (CI −2.50…−1.81); n=400 80/80, −2.44 %; n≈100 −0.60 % (28/40, not significant after Holm); SD not reduced (ratio 1.09). See `RM-Report/project_report/FINAL_REPORT.md` §8 and `RM-Report/data/data_paired.txt`.

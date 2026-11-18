@@ -4,15 +4,15 @@
 
 \section{Repository layout}
 
-All code, scripts, logs of record and write-ups are in the repository directory \texttt{Differential\_RL\_TRMP/}.
+The code, experiment scripts and experiment write-ups are in the repository directory \texttt{Differential\_RL\_TRMP/}; this thesis, the project report, the report figures and the numeric outputs behind the tables are in \texttt{RM-Report/} at the repository root.
 
 \begin{description}
 \item[\texttt{es\_pre\_sfFIN.c}] The original, unmodified ES-TRMP implementation (kept as the oracle for equivalence tests).
 \item[\texttt{src/}] The instrumented driver: \texttt{trmp\_core.c} (instance loading, cost functions, pre-processing and evaluation counters, lifted unchanged from the original), \texttt{destroy\_repair.c} (destroy policies and the unchanged greedy repair), \texttt{es\_drl.c} (driver with \texttt{--policy}, \texttt{--runs-csv}, \texttt{--iter-log}, \texttt{--state-log}), and \texttt{rl\_diff.c/.h} (the tabular differential and discounted Q-learner; its driver integration is on the separate branch \texttt{option-b-r1}).
 \item[\texttt{tests/}] Equivalence test with golden result rows (\texttt{test\_equiv.sh}), unit tests of the cost function, the history-aware policy and the real-instance policy check, and toy-MDP tests of the learner.
-\item[\texttt{scripts/}] Diagnostic and experiment runners (\texttt{full\_block.sh}, \texttt{same\_session.sh}, \ldots), reproduction and comparison scripts (\texttt{phase0\_repro.sh}, \texttt{compare\_full.py}, \texttt{analyze\_paired.py}) and figure and table generators.
-\item[\texttt{docs/}] The plan, the pre-registered decision rules, the decision log, the per-experiment write-ups and the numeric outputs behind the tables of this thesis.
-\item[\texttt{thesis/}] This document.
+\item[\texttt{scripts/}] Diagnostic and experiment runners (\texttt{full\_block.sh}, \texttt{same\_session.sh}, \ldots), reproduction and comparison scripts (\texttt{phase0\_repro.sh}, \texttt{compare\_full.py}, \texttt{analyze\_paired.py}) and the analysis scripts.
+\item[\texttt{docs/}] The plan, the pre-registered decision rules, the decision log and the per-experiment write-ups.
+\item[\texttt{RM-Report/}] (repository root) This thesis (\texttt{thesis/}) and its PDF, the project report (\texttt{project\_report/}), the figures (\texttt{figures/}), the numeric outputs behind the tables (\texttt{data/}) and the scripts that generate the figures, the Appendix~B table and the report PDF (\texttt{scripts/}).
 \end{description}
 
 \section{Reproducing the main results}

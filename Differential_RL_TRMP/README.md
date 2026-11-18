@@ -32,3 +32,7 @@ The program reads `init_state.dat` (initial sensor angles) from the current work
 - `init_state.dat` - initial sensor angle state
 - `instances/` - problem instances
 - `results_ESapproach.ods` - reference results
+
+## Reports and thesis
+
+The B.Tech thesis, the project report, the figures and the numeric outputs behind them are in `../RM-Report/` (repository root); see `../RM-Report/README.md`.
