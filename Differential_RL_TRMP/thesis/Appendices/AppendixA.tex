@@ -1,0 +1,60 @@
+% Appendix A
+
+\chapter{Experiment Catalogue and Decision Record}\label{AppendixA}
+
+This appendix lists every experiment conducted, in chronological order, with its set-up, key result and the decision it led to, followed by what was adopted and what was dropped. Section references are to Chapter~\ref{Chapter4}. All numbers are changes in total rotation (negative is better) at equal evaluations unless stated.
+
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{P{0.7cm}P{3.0cm}P{3.5cm}P{4.2cm}P{2.9cm}}
+\caption{Catalogue of experiments.}\label{tab:catalogue}\\
+\toprule \textbf{ID} & \textbf{Experiment} & \textbf{Set-up} & \textbf{Key result} & \textbf{Decision}\\ \midrule \endfirsthead
+\toprule \textbf{ID} & \textbf{Experiment} & \textbf{Set-up} & \textbf{Key result} & \textbf{Decision}\\ \midrule \endhead
+\bottomrule \endfoot
+E1 & Reproduction of ES-TRMP (\S\ref{sec:exp-repro}) & Original code rebuilt; 31 instances with $n\le100$, $n=198$, $n=400$; 20 runs & Best, mean, SD and best-iteration statistics identical to the reference on all 33 & Published rows used as baseline\\
+E2 & Driver equivalence & Driver in baseline mode vs original binary; $n=18,25,198$ (and $n=400$ via E12) & Identical, including the best-iteration mean/SD (random-stream fingerprint) & Driver adopted for all experiments\\
+E3 & Diagnostic, fixed $\kappa\in\{2,4,6,8\}$ (\S\ref{sec:exp-diag}) & $n=100,198,400$; 10, 10, 3 runs; rule pre-registered & 82--99\% ties; larger $\kappa$ mostly adds worse offspring; no $\kappa$ better than 4 at $n=198$ (all within 0.08\%) & Inconclusive-to-negative for $\kappa$; test selection policies cheaply\\
+E4 & $\kappa=2$ vs $\kappa=4$, $n=400$, 10 runs (\S\ref{sec:exp-policies}) & Paired, equal evaluations & $+0.05\%$ ($p=0.77$); the earlier $-0.36\%$ (3 runs) was noise & $\kappa$ has no headroom\\
+E5 & RL controller for $\kappa$ (\S\ref{sec:exp-rl}) & Differential and discounted Q-learning vs fixed $\kappa=2$ and random $\kappa$; 10, 10, 3 runs & Equals the controls ($-0.03\%$, $-0.14\%$ vs fixed $\kappa=2$; $p\ge0.56$); learned policy constant ($\kappa=2$); worse at $n=400$ & Learning $\kappa$ dropped; infrastructure kept\\
+E6 & Destroy-selection policies (\S\ref{sec:exp-policies}) & \texttt{cost-greedy}, \texttt{history-aware}, \texttt{block} vs uniform; 10, 10, 5 runs & \texttt{block}: $-0.97$, $-1.79$, $-2.66\%$; the others no gain ($-0.29\%$ for \texttt{history-aware} at $n=400$ unproven) & \texttt{block} adopted; others dropped\\
+E7 & No-op decomposition (\S\ref{sec:exp-diag}) & Identical permutation vs plateau move; $n=100,198$; 3 runs & True no-ops: $3.9\%$ / $16.4\%$ of mutations at $\kappa=4$ & Earlier \enquote{most budget wasted on no-ops} corrected\\
+E8 & Validation of \texttt{block} (\S\ref{sec:exp-validate}) & 3 instances per size, all apertures; 10, 10, 5 runs & Better on all instances at $n\approx200$ ($-1.95\%$) and $n=400$ ($-2.68\%$); not at $n\approx100$ ($-0.04\%$) & Adopted for $n\gtrsim200$\\
+E9 & $\kappa$ sweep for \texttt{block} (\S\ref{sec:exp-bk}) & $\kappa\in\{2,4,6,8,12\}$; $n=198$ (10), $n=400$ (5) & $\kappa=2$ worse; $\kappa\ge4$ equivalent at $n=198$; trend to larger $\kappa$ at $n=400$ (not significant) & Keep $\kappa=4$; larger $\kappa$ as future work\\
+E10 & Mechanism controls (\S\ref{sec:exp-mech}) & \texttt{uniform-sorted}, \texttt{block-rord}, \texttt{wrap}; $n=100,198$; 10 runs & Contiguity is the ingredient ($-1.71\%$, 10/0, $p=0.002$); order and edges irrelevant & Mechanism = contiguity of removed set\\
+E11 & Mixed operators (\S\ref{sec:exp-mix}) & \texttt{mix:}$p$, $p\in\{0.25,0.5,0.75\}$; $n=100,198$ & Pure \texttt{block} best; mixes $0.44$--$0.67\%$ worse at $n=198$; no state-dependent preference & Mixing dropped; no learner over operators\\
+E12 & $n=400$ reproduction with new driver & instance \texttt{m400-s06-i00}, 20 runs & 4349.337 / 4373.350 / 17.225, identical to the reference & Driver $\equiv$ original at $n=400$\\
+E13 & Full-protocol \texttt{block} (\S\ref{sec:exp-full}) & 60 instances, 20 runs, $\kappa=4$, 4{,}000 iterations vs published rows & $n\ge198$: 26/26 better, $-2.17\%$ ($p<0.0001$); $n=400$: $-2.32\%$; $n\le50$ ties; SD not reduced & Headline result\\
+E14 & Same-session paired check (\S\ref{sec:exp-paired}) & Original re-run and paired per run; 10 instances $\times$ 20 runs & Baseline equals reference on 10/10; $n\ge198$: 157/160 runs better, $-2.18\%$ (CI $[-2.50,-1.81]$) & Headline result confirmed\\
+\end{longtable}
+}
+
+\section*{Adopted}
+
+\begin{itemize}
+\item \textbf{Contiguous (\texttt{block}) destroy with $\kappa=4$}: the only change with a robust, large, size-dependent gain; no extra evaluations; the controls show contiguity is the cause.
+\item \textbf{Equal-evaluation accounting and paired seeds}: prevents an action that merely spends more computation from looking better and removes start-point variance.
+\item \textbf{Pre-registered decision rules and control arms}: prevent results from being fitted after the fact; they exposed that learning $\kappa$ has no headroom.
+\item \textbf{Instrumented driver with exact-reproduction and equivalence tests}: every number is traceable to code that matches the original.
+\item \textbf{The paper's protocol for the headline claim and a same-session baseline for the paired confirmation.}
+\end{itemize}
+
+\section*{Dropped}
+
+\begin{itemize}
+\item \textbf{Learning $\kappa$ with differential or discounted Q-learning}: $\kappa$ has no headroom; the learner equals constant-$\kappa$ controls and is worse than fixed $\kappa=2$ at $n=400$.
+\item \textbf{\texttt{cost-greedy} destroy}: no gain at any size; \texttt{block} removes cheaper groups than uniform yet wins, so cost is not the mechanism.
+\item \textbf{\texttt{history-aware} destroy}: no effect at $n\le198$; $-0.29\%$ at $n=400$ on five runs ($p=0.0625$), worse early; unproven.
+\item \textbf{Mixing uniform and \texttt{block}}: pure \texttt{block} beats every mix.
+\item \textbf{A learner over operators and a learned shuffle}: no state-dependent preference resolvable at $n\le198$; not built.
+\item \textbf{Raw-evaluation time unit for $\tau$}: the estimate $\bar R$ diverged; replaced by the evaluations of one $\kappa=4$ mutation.
+\item \textbf{The claim that differential learning is better than discounted learning}: not supported against the controls.
+\item \textbf{A re-run of GA-TRMP+LSB}: skipped on instruction.
+\end{itemize}
+
+\section*{Corrected statements}
+
+\begin{itemize}
+\item \enquote{Most of the evaluation budget is wasted on no-operations}: true no-operations are only about $4\%$ ($n=100$) to $16\%$ ($n=198$) of the budget at $\kappa=4$; most ties are plateau moves.
+\item \enquote{$\kappa=2$ beats $\kappa=4$ at $n=400$} ($-0.36\%$ and $-0.74\%$ on three runs): noise; ten paired runs give $+0.05\%$ ($p=0.77$).
+\item The shuffle size is $\lfloor n/7\rfloor$ in both the paper and the code (the design brief says $\lceil n/7\rceil$).
+\end{itemize}

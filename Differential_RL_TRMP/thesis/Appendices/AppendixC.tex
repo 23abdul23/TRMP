@@ -1,0 +1,43 @@
+% Appendix C
+
+\chapter{Code Base and Reproducibility}\label{AppendixC}
+
+\section{Repository layout}
+
+All code, scripts, logs of record and write-ups are in the repository directory \texttt{Differential\_RL\_TRMP/}.
+
+\begin{description}
+\item[\texttt{es\_pre\_sfFIN.c}] The original, unmodified ES-TRMP implementation (kept as the oracle for equivalence tests).
+\item[\texttt{src/}] The instrumented driver: \texttt{trmp\_core.c} (instance loading, cost functions, pre-processing and evaluation counters, lifted unchanged from the original), \texttt{destroy\_repair.c} (destroy policies and the unchanged greedy repair), \texttt{es\_drl.c} (driver with \texttt{--policy}, \texttt{--runs-csv}, \texttt{--iter-log}, \texttt{--state-log}), and \texttt{rl\_diff.c/.h} (the tabular differential and discounted Q-learner; its driver integration is on the separate branch \texttt{option-b-r1}).
+\item[\texttt{tests/}] Equivalence test with golden result rows (\texttt{test\_equiv.sh}), unit tests of the cost function, the history-aware policy and the real-instance policy check, and toy-MDP tests of the learner.
+\item[\texttt{scripts/}] Diagnostic and experiment runners (\texttt{full\_block.sh}, \texttt{same\_session.sh}, \ldots), reproduction and comparison scripts (\texttt{phase0\_repro.sh}, \texttt{compare\_full.py}, \texttt{analyze\_paired.py}) and figure and table generators.
+\item[\texttt{docs/}] The plan, the pre-registered decision rules, the decision log, the per-experiment write-ups and the numeric outputs behind the tables of this thesis.
+\item[\texttt{thesis/}] This document.
+\end{description}
+
+\section{Reproducing the main results}
+
+\begin{verbatim}
+cd Differential_RL_TRMP
+make out/es_drl out/es_base          # driver and original baseline
+bash tests/test_equiv.sh             # driver == original (golden rows)
+scripts/phase0_repro.sh 1 200 4      # rebuild baseline rows
+.venv/bin/python scripts/compare_phase0.py   # exact-match check
+scripts/full_block.sh 4              # block, 60 instances x 20 runs
+.venv/bin/python scripts/compare_full.py     # full-protocol tables
+scripts/same_session.sh 4            # original re-run on 10 instances
+.venv/bin/python scripts/analyze_paired.py   # paired-comparison tables
+\end{verbatim}
+
+The environment for the analysis scripts is created with \texttt{python3 -m venv .venv} followed by \texttt{pip install -r scripts/requirements.txt} (\texttt{numpy}, \texttt{scipy}, \texttt{matplotlib}, \texttt{pandas}, \texttt{odfpy}). The code was compiled with GCC 13.3 at \texttt{-O2}.
+
+\section{Computation used}
+
+The full-protocol run of the contiguous destroy (60 instances $\times$ 20 runs) took 22.1 CPU-hours, dominated by the 15 instances with $n=400$ (about 230 s per run). The same-session baseline on ten instances took 6.4 CPU-hours. Jobs were run in parallel on four cores, so the CPU times in this thesis are approximate.
+
+\section{Compiling this document}
+
+\texttt{main.tex} uses the class file \texttt{Thesis.cls} with \texttt{polyglossia} (Hindi title line, font Noto Serif Devanagari), so it must be compiled with XeLaTeX and \texttt{biber}:
+\begin{verbatim}
+latexmk -xelatex -interaction=nonstopmode main.tex
+\end{verbatim}

@@ -1,0 +1,183 @@
+% Chapter 3
+
+\chapter{Methodology} % Main chapter title
+
+\label{Chapter3} % For referencing the chapter elsewhere, use \ref{Chapter3}
+
+%----------------------------------------------------------------------------------------
+
+This chapter describes the baseline algorithm that every experiment is measured against (Section~\ref{sec:es-trmp}), the benchmark instances (Section~\ref{sec:instances}), the instrumented implementation (Section~\ref{sec:impl}), the evaluation methodology (Section~\ref{sec:evalmethod}), the reinforcement-learning formulation (Section~\ref{sec:rlform}) and the destroy policies that were compared with it (Section~\ref{sec:policies}).
+
+%----------------------------------------------------------------------------------------
+
+\section{The Baseline: ES-TRMP}\label{sec:es-trmp}
+
+A solution is a permutation of the $n$ groups; the initial group $g_0$ is implicit and always first. ES-TRMP \cite{srivastava2018} has three components.
+
+\paragraph{Pre-processing.} Starting from $\chi$ random permutations ($\chi=20$ if $n\ge4$, else $\chi=n$), the algorithm builds for each one an \emph{opposite} permutation by swapping the $i$-th element with the $(n-i+1)$-th element for $i=1,3,5,\ldots,\lfloor n/2\rfloor$. The NEH insertion heuristic, adapted to TRMP, is applied to every one of the $2\chi$ permutations: the first two groups are placed in their cheaper order, and each further group is tried in every position of the partial schedule and kept at the cheapest. The best of the $2\chi$ improved schedules starts the search.
+
+\paragraph{Destroy-and-repair mutation.} Remove $\kappa$ groups chosen uniformly at random, with $\kappa=4$ if $4\le n/2$, otherwise $\kappa=\max(\lfloor n/2\rfloor,1)$. Then re-insert the removed groups one at a time, in removal order; the $i$-th removed group is tried at all $(n-\kappa+i)$ positions of the current partial schedule and placed at the position of minimum total rotation. Repair is greedy and deterministic. The cost of one mutation is $O(\kappa n^2 m)$, and the number of candidate positions evaluated is $\sum_{i=1}^{\kappa}(n-\kappa+i)$.
+
+\paragraph{Acceptance and shuffle.} The mutation produces one offspring; the better of parent and offspring survives ($(1+1)$ selection, elitist). In the implementation used here, an offspring of \emph{equal} cost is also accepted, which allows neutral drift on plateaus. If the best solution has not improved for $\eta=100$ consecutive iterations, a \emph{shuffle} is performed: the same destroy-and-repair operator with a larger destruction size $\delta$ (40 for $n\ge200$, 20 for $100<n<200$, 10 for $50<n\le100$, $\lfloor n/7\rfloor$ for $n\le50$ with a minimum of 4), and the result replaces the incumbent unconditionally.
+
+The algorithm terminates after exactly 4{,}000 iterations. Algorithm~\ref{alg:es} summarises it; the box marked \emph{Destroy} is the only part that the rest of the thesis varies.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{Algorithm 1: ES-TRMP with a pluggable destroy step}\par\vspace{2pt}
+\begin{enumerate}\setlength\itemsep{0pt}
+\item $x\leftarrow$ \textsc{PreProcess}() \hfill (NEH on $2\chi$ candidates; unchanged)
+\item $x_{best}\leftarrow x$; \quad $noimp\leftarrow 0$
+\item \textbf{for} $t=1$ \textbf{to} $4000$ \textbf{do}
+\item \quad \fbox{\textit{Destroy:} choose $\kappa$ groups to remove from $x$ according to a \emph{policy}} \hfill (uniform in the baseline)
+\item \quad $x'\leftarrow$ \textsc{GreedyRepair}(removed groups) \hfill (unchanged)
+\item \quad \textbf{if} $f(x')\le f(x)$ \textbf{then} $x\leftarrow x'$ \hfill (ties accepted)
+\item \quad \textbf{if} $f(x)<f(x_{best})$ \textbf{then} $x_{best}\leftarrow x$, $noimp\leftarrow0$ \textbf{else} $noimp\leftarrow noimp+1$
+\item \quad \textbf{if} $noimp\ge\eta$ \textbf{then} $x\leftarrow$ \textsc{Shuffle}($x,\delta$); $noimp\leftarrow0$
+\item \textbf{return} $x_{best}$
+\end{enumerate}
+\end{minipage}}
+\caption{The ES-TRMP loop. In the baseline the destroy policy is uniform random selection with $\kappa=4$; all other lines are held fixed in every experiment.}
+\label{alg:es}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{ES-TRMP parameters held fixed in all experiments (from \cite{srivastava2018} and the reference implementation).}
+\label{tab:params}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value}\\
+\midrule
+Iterations per run & 4{,}000\\
+Independent runs per instance & 20 (seeds $1,\ldots,20$)\\
+Pre-processing seeds $\chi$ & 20 (if $n\ge4$)\\
+Destruction size $\kappa$ & 4 (if $4\le n/2$)\\
+Stagnation threshold $\eta$ & 100 iterations\\
+Shuffle size $\delta$ & 40 / 20 / 10 / $\lfloor n/7\rfloor$ by size\\
+Acceptance & offspring accepted if not worse\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%----------------------------------------------------------------------------------------
+
+\section{Benchmark Instances}\label{sec:instances}
+
+The 60 benchmark instances of \cite{srivastava2018,singh2015} are used unchanged. They were generated by solving the lifetime-maximisation problem with column generation \cite{rossi2013} for networks of $m\in\{50,100,200,400\}$ sensors with $0.6\,m$ targets placed at random in a $500\times500$ area, sensing range 150 and sensing angle $\varphi\in\{2\pi/3,\pi/2,\pi/3\}$ (a smaller angle gives a harder instance). There are five instances per $(m,\varphi)$ combination. The number of groups $n$ produced ranges from 1 to 400. Table~\ref{tab:instances} gives the size distribution used when results are grouped; the file name \texttt{covers\_dirn400m240r150s06i00} encodes $m=400$ sensors, 240 targets, range 150, angle $\pi/3$ (\texttt{s06}; \texttt{s03} is $2\pi/3$, \texttt{s04} is $\pi/2$) and instance index 0.
+
+\begin{table}[htbp]
+\centering
+\caption{Grouping of the 60 instances by number of groups $n$.}
+\label{tab:instances}
+\begin{tabular}{lc}
+\toprule
+\textbf{Group} & \textbf{Instances}\\
+\midrule
+$n\le50$ & 21\\
+$50<n\le100$ & 10\\
+$100<n<200$ (includes two with $n=198$) & 5\\
+$n=200$ & 9\\
+$n=400$ & 15\\
+\midrule
+All & 60\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%----------------------------------------------------------------------------------------
+
+\section{Instrumented Implementation}\label{sec:impl}
+
+The reference implementation of ES-TRMP is a single C file. For this study its functions were lifted unchanged (by line range) into a small code base, and the following were added without changing the search:
+
+\begin{itemize}
+\item \textbf{Evaluation counter.} Every call of the prefix-cost function used by repair counts as one \emph{candidate evaluation}; this is the paper's \enquote{objective evaluation} and equals $\sum_i(n-\kappa+i)$ per mutation. A secondary counter records the total prefix length scanned (true work). Pre-processing evaluations are counted separately and are not charged to the budget.
+\item \textbf{Destroy policy parameter.} The destruction size and the selection policy are parameters of the mutation. With the uniform policy the sequence of random-number calls, and therefore every output, is identical to the original.
+\item \textbf{Logging.} Per-mutation records (parent cost, offspring cost, evaluations used, accepted or not) and, optionally, search-state features. Logging never calls the random-number generator, so it cannot change the search.
+\item \textbf{A private random-number generator} (xorshift) for the learning controller and for mixed policies, so that exploration never perturbs the random stream of the search.
+\end{itemize}
+
+\paragraph{Equivalence with the original.} The driver in baseline mode was checked against the original binary on 20-run results, comparing best, mean, standard deviation and the mean and standard deviation of the iteration at which the best solution was found. The last pair is a sensitive fingerprint of the random-number stream. The checks pass on $n=18$, $n=25$ and $n=198$, and the 20-run result for an $n=400$ instance equals the published row (Section~\ref{sec:exp-repro}). A unit test with a hand-built three-group instance verifies the angular distance, wrap-around and the clamping of $\kappa$.
+
+\paragraph{Properties of the original code that matter.} (i) The command-line seed argument is dead code: it is overwritten by \texttt{srand(run+1)} inside the run loop, so run $r$ always uses seed $r+1$. (ii) Offspring of equal cost are accepted. (iii) The shuffle size uses $\lfloor n/7\rfloor$ (the design brief states $\lceil n/7\rceil$); the code and the paper agree on the floor. (iv) The total number of evaluations of a run is not fixed, because shuffles use a larger destruction size and so cost more than normal mutations.
+
+%----------------------------------------------------------------------------------------
+
+\section{Evaluation Methodology}\label{sec:evalmethod}
+
+\paragraph{Equal evaluation budget.} The cost of a mutation is linear in $\kappa$, so an action with a large $\kappa$ can trivially look better simply by spending more computation per iteration. All comparisons that involve different destroy settings are therefore made at an \emph{equal cumulative number of candidate evaluations}: for each paired run, the best-so-far cost of every arm is read at 25\%, 50\% and 100\% of the common budget $B^{*}$, the smallest total over the arms of that run. For the learning controller the stopping rule is the evaluation budget of the baseline run with the same index.
+
+\paragraph{Paired seeds.} Run $r$ of every arm uses \texttt{srand(}$r+1$\texttt{)}, hence the same pre-processed starting schedule; the trajectories diverge afterwards, so pairing removes the variance of the starting point only.
+
+\paragraph{Statistics.} Per-run paired differences are tested with the two-sided Wilcoxon signed-rank test \cite{wilcoxon1945}, reporting wins, ties and losses. Where many instances are tested, $p$-values are corrected with Holm's method \cite{holm1979}. Group-level confidence intervals use a cluster bootstrap that resamples instances and then runs within instance; the paired effect size is $d_z=\bar d/s_d$ of the per-run percentage differences. With $k$ pairs the smallest attainable two-sided Wilcoxon $p$ is $2^{1-k}$, i.e.\ $0.0625$ for 5 pairs and $0.002$ for 10 pairs; this limit is quoted wherever it binds. Exploratory results are labelled as such.
+
+\paragraph{Pre-registered decision rules.} The go/no-go rule for the diagnostic phase, and the rules for the validation and mechanism experiments, were written to files and committed before the corresponding results were inspected.
+
+\paragraph{Protocols.} Table~\ref{tab:protocols} lists the protocols used. Headline claims rest on the full protocol (the original paper's: 4{,}000 iterations, 20 runs, all 60 instances) and on the same-session paired check; the reduced protocols are exploratory.
+
+\begin{table}[htbp]
+\centering
+\caption{Experimental protocols.}
+\label{tab:protocols}
+\small
+\begin{tabular}{P{3.2cm}P{4.4cm}P{5.6cm}}
+\toprule
+\textbf{Protocol} & \textbf{Instances} & \textbf{Runs, comparison}\\
+\midrule
+Diagnostic (fixed $\kappa$) & $n\approx100,198,400$, one each & 10 / 10 / 3 runs; equal evaluations\\
+RL, reduced & same three instances & 10 / 10 / 3 runs; equal evaluations\\
+Policy probes & same three instances & 10 / 10 / 5 runs; equal evaluations\\
+Validation of \texttt{block} & 3 per size across the three apertures (9) & 10 / 10 / 5 runs; equal evaluations\\
+Full (paper's) & all 60 & 20 runs; paper's 4{,}000 iterations vs.\ published rows\\
+Same-session paired & 10 (2 at $n\approx100$, 4 at $n\approx200$, 4 at $n=400$) & 20 runs; original algorithm re-run and paired per run\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%----------------------------------------------------------------------------------------
+
+\section{Reinforcement-Learning Formulation}\label{sec:rlform}
+
+The environment is the ES-TRMP search; the agent is a small controller that chooses how to perturb the schedule; one time step is one ES iteration. Only the destroy decision is delegated to the agent.
+
+\paragraph{State.} Two scale-free features summarise how the search is going (not the schedule itself): the stagnation $u_t=noimp/\eta$, binned into $[0,0.1),[0.1,0.4),[0.4,1),[1,\infty)$; and the budget progress $\beta_t=t/T$, binned into quarters. This gives 16 states, of which about 12 are reachable (the last stagnation bin is visited only in the iteration before a shuffle).
+
+\paragraph{Actions.} $\kappa\in\{2,4,6,8\}$, with uniform random selection of the removed groups (stage R1 of the design brief).
+
+\paragraph{Reward.} The relative reduction of the cost of the \emph{offspring}, computed before the acceptance test,
+\begin{equation}
+r_t=\frac{f(x_t)-f(x'_{t+1})}{\max(|f(x_t)|,\epsilon)},\qquad \tilde r_t=\operatorname{sign}(r_t)\,\log\bigl(1+|r_t|/c\bigr),
+\end{equation}
+with $\epsilon=10^{-9}$ and compression constant $c=0.004$, the median non-zero $|r|$ measured on a different instance than any evaluation instance. Rewarding the offspring and not the incumbent matters: under elitist selection the incumbent never gets worse, so a reward defined on it is zero in the large majority of iterations and, when positive, strongly skewed to the first few hundred iterations.
+
+\paragraph{Differential Q-learning with semi-Markov timing.} Let $\tau_t$ be the duration of the action, here the evaluations consumed by the mutation. The update is
+\begin{align}
+\delta_t &= \tilde r_t-\bar R_t\,\tau_t+\max_a Q(S_{t+1},a)-Q(S_t,A_t),\label{eq:delta}\\
+Q(S_t,A_t)&\leftarrow Q(S_t,A_t)+\alpha\,\delta_t,\label{eq:qupdate}\\
+\bar R_{t+1}&=\bar R_t+\eta_{\mathrm{RL}}\,\alpha\,\delta_t,\label{eq:rbar}
+\end{align}
+with $\alpha=0.1$, $\eta_{\mathrm{RL}}=0.2$, and an $\varepsilon$-greedy behaviour policy whose $\varepsilon$ is annealed linearly from $0.30$ to $0.02$ over the budget. There is no discount factor; $\bar R_t$ is the controller's estimate of reward per unit of computation. Both $Q$ and $\bar R$ are driven by the same error $\delta_t$, which ties $\bar R$ to the reward rate of the \emph{greedy} policy encoded in $Q$ and not to that of the exploring behaviour policy.
+
+\paragraph{Discounted variant.} The same state, action, reward and $\varepsilon$ schedule with $\delta_t=\tilde r_t+\gamma\max_aQ(S_{t+1},a)-Q(S_t,A_t)$, $\gamma=0.9$ and $\tau$ ignored, used for the differential-versus-discounted comparison.
+
+\paragraph{Time unit.} With $\tau$ in raw evaluations (hundreds per step) the effective gain of $\bar R$, $\eta_{\mathrm{RL}}\alpha\tau$, exceeds one and the coupled estimate diverged to non-finite values within 7--10 iterations. $\tau$ is therefore expressed in units of the evaluations of one $\kappa=4$ mutation; the budget and its parity checks remain in raw evaluations. A divergence guard aborts a run if $|\bar R|>10^{6}$. This is a stability fix; no other parameter was changed after seeing results.
+
+\paragraph{Controls and budget.} Two controls run through the identical loop: \emph{fixed $\kappa=2$} (no exploration) and \emph{random $\kappa$} ($\varepsilon=1$). A learner is only useful if it beats these, not just the paper's fixed $\kappa=4$. The stopping budget is the number of candidate evaluations the baseline run of the same index used; a mutation that would exceed it is not started. Budget parity was verified in every reported run (maximum deviation $0.098\%$). The controller operates in \emph{online} mode: $Q$ and $\bar R$ start empty in each run (the design brief's offline-trained mode was not run).
+
+%----------------------------------------------------------------------------------------
+
+\section{Destroy Policies}\label{sec:policies}
+
+All policies remove $\kappa=4$ groups unless stated, and all use the unchanged greedy repair. They differ only in which groups are removed and in which order the removed groups are re-inserted.
+
+\begin{description}
+\item[\texttt{uniform}] The baseline: $\kappa$ groups drawn uniformly at random; re-insertion in draw order.
+\item[\texttt{cost-greedy}] Groups are selected preferentially by the transition cost $D(S_{i-1},g_{\rho_i})$ at their current positions (randomised so that the operator is not deterministic).
+\item[\texttt{history-aware}] Groups are selected by how much of their cost is driven by a \emph{distant} predecessor: a group that shares a sensor with an earlier group with no intervening group using that sensor. This targets the multi-predecessor structure that is unique to TRMP.
+\item[\texttt{block}] A start position $s_0=\lfloor u\,(n-\kappa+1)\rfloor$ is drawn uniformly and the $\kappa$ consecutive groups at positions $s_0,\ldots,s_0+\kappa-1$ are removed (no wrap-around); they are re-inserted in ascending position order.
+\end{description}
+
+\noindent Control variants separate the ingredients of \texttt{block}: \texttt{uniform-sorted} (uniform selection, ascending re-insertion order), \texttt{block-rord} (the block selection, random re-insertion order) and \texttt{wrap} (a block whose start is uniform over all $n$ positions, cyclic). \texttt{mix:}$p$ applies \texttt{block} with probability $p$ and \texttt{uniform} otherwise, drawing from the private generator. The uniform policy is bit-identical to the baseline; the history-aware computation was checked on a hand-built five-group instance and all policies were checked to return valid permutations whose reported cost equals an independent recomputation on the real $n=198$ instance. The extra $O(nm)$ work of \texttt{cost-greedy} and \texttt{history-aware} per mutation is not charged to the budget, which can only favour them.

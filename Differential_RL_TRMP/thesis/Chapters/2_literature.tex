@@ -1,0 +1,76 @@
+% Chapter 2
+
+\chapter{Literature Review} % Main chapter title
+
+\label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2}
+
+%----------------------------------------------------------------------------------------
+
+This chapter reviews the work on which the thesis builds. Section~\ref{sec:lit-trmp} covers directional sensor networks and the TRMP literature. Section~\ref{sec:lit-dr} reviews permutation heuristics and destroy-and-repair search, the family to which ES-TRMP belongs. Section~\ref{sec:lit-adapt} reviews adaptive control of search operators. Section~\ref{sec:lit-rl} introduces the reinforcement-learning concepts used later, from discounted Q-learning to differential (average-reward) Q-learning. Section~\ref{sec:lit-gap} states the gap this thesis addresses.
+
+%----------------------------------------------------------------------------------------
+
+\section{Directional Sensor Networks and TRMP}\label{sec:lit-trmp}
+
+Scheduling in directional sensor networks has largely been studied with the goal of maximising network lifetime: given a set of targets and sensors with limited sensing angles, an algorithm selects \emph{covers} (sets of sensors with their working directions) and a time for which each cover is active. Rossi, Singh and Sevaux solve the lifetime-maximisation problem by column generation and thereby produce the benchmark groups used for TRMP \cite{rossi2013}. The sensors in a group must point in particular directions, so moving from one group to the next requires rotations.
+
+Singh and Rossi introduced \emph{group scheduling} problems for directional sensor networks and the Total Rotation Minimization Problem, together with a genetic algorithm with local search, GA-TRMP+LSB \cite{singh2015}. Srivastava and Singh then proposed ES-TRMP, a two-membered evolution strategy with a pre-processing step, which improved on GA-TRMP+LSB on all 60 benchmark instances in best and mean quality \cite{srivastava2018}. They argued that a population-based method with recombination is unsuited to TRMP: because the cost of a group depends on an irregular set of predecessors, crossover scrambles exactly the predecessor structure that made a parent good, so recombination is close to a random operator. We retain this reasoning, and ES-TRMP is the baseline throughout the thesis.
+
+TRMP has an unusual structure among scheduling problems. In sequence-dependent setup-time scheduling the cost of a job depends only on its immediate predecessor, so a static distance matrix exists. In TRMP the cost depends on several earlier groups, so no such matrix exists. This property is what makes the choice of search operator non-trivial, and it motivates operators and controllers that are aware of the multi-predecessor dependence.
+
+%----------------------------------------------------------------------------------------
+
+\section{Permutation Heuristics and Destroy-and-Repair Search}\label{sec:lit-dr}
+
+\subsection{Constructive heuristics and pre-processing}
+
+The NEH heuristic of Nawaz, Enscore and Ham builds a flow-shop schedule by inserting jobs one at a time at the position that minimises the partial cost \cite{nawaz1983}. ES-TRMP uses an adaptation of NEH, applied to random permutations, as the core of its pre-processing step. The underlying idea, that high-quality local optima cluster near the global optimum and so an improved starting solution helps the later search, follows Solnon's \enquote{boosting with a preprocessing step} \cite{solnon2002}. ES-TRMP also generates, for each random start, an \emph{opposite} permutation, extending the opposition-based learning concept of Rahnamayan, Tizhoosh and Salama from continuous to permutation spaces \cite{rahnamayan2008}.
+
+\subsection{Iterated greedy and large-neighbourhood search}
+
+Destroy-and-repair is a widely used scheme for permutation and routing problems. Shaw's large neighbourhood search removes a set of related customers and re-inserts them \cite{shaw1998}; Ruiz and St{\"u}tzle's iterated greedy algorithm for the permutation flow-shop removes a few jobs at random and re-inserts each at its best position, which is exactly the structure of the ES-TRMP mutation \cite{ruiz2007}; Ropke and Pisinger's \emph{adaptive} large neighbourhood search chooses among several destroy and repair operators with probabilities updated from their past success \cite{ropke2006}. The existing destroy operators in this literature include random removal, worst removal (remove the most costly elements) and related removal (remove elements similar to each other). In the terminology of this thesis, the uniform destroy of ES-TRMP is random removal, the \texttt{cost-greedy} policy of Chapter~\ref{Chapter3} is worst removal, and the \texttt{block} policy removes elements that are adjacent in the schedule, a form of related removal.
+
+\subsection{Evolution strategies}
+
+An evolution strategy is a stochastic optimiser built around mutation and selection \cite{beyer2002}. The $(1+1)$-ES keeps a single parent, produces one offspring by mutation and keeps the better of the two (elitism). For discrete problems the mutation changes only a few components, and the step size, here the number $\kappa$ of removed groups, controls the balance between exploitation (small $\kappa$) and exploration (large $\kappa$). ES-TRMP uses a small, constant $\kappa$ for exploitation and a large $\delta$ in a separate shuffle step for exploration.
+
+%----------------------------------------------------------------------------------------
+
+\section{Adaptive Operator and Parameter Control}\label{sec:lit-adapt}
+
+Eiben, Hinterding and Michalewicz classified parameter setting in evolutionary algorithms into tuning (before the run) and control (during the run), and, within control, into deterministic, adaptive and self-adaptive schemes \cite{eiben1999}. Karafotias, Hoogendoorn and Eiben later surveyed the field and its open challenges, including the need for fair comparison with well-tuned fixed settings and the fact that a control mechanism introduces parameters of its own \cite{karafotias2015}. Adaptive operator selection with bandit algorithms is analysed by Fialho et al.\ \cite{fialho2010}, and hyper-heuristics, which choose among low-level heuristics, are surveyed by Burke et al.\ \cite{burke2013}. A recurring methodological concern in this literature is fairness of comparison: an adaptive method can look better simply because it spends more computation per iteration, so comparisons should be made at an equal budget of objective evaluations. This concern is central here because the cost of one mutation is linear in $\kappa$.
+
+%----------------------------------------------------------------------------------------
+
+\section{Reinforcement Learning Background}\label{sec:lit-rl}
+
+\subsection{Markov decision processes and Q-learning}
+
+A Markov decision process (MDP) is a tuple $(\mathcal S,\mathcal A,p,\mathcal R)$ of states, actions, dynamics $p(s',r\mid s,a)$ and rewards; an agent repeatedly observes a state, chooses an action and receives a reward and a next state \cite{sutton2018}. The action-value function $q_\pi(s,a)$ is the expected return from taking $a$ in $s$ and following policy $\pi$ afterwards. Q-learning replaces the unknown expectation in the Bellman optimality equation with a sampled transition,
+\begin{equation}
+Q(S_t,A_t)\leftarrow Q(S_t,A_t)+\alpha\Bigl[R_{t+1}+\gamma\max_a Q(S_{t+1},a)-Q(S_t,A_t)\Bigr],
+\label{eq:qlearning}
+\end{equation}
+where $\alpha$ is the step size and $\gamma<1$ the discount factor \cite{watkins1992}. It is off-policy: the agent can explore (for example with an $\varepsilon$-greedy policy) while learning about the greedy policy. A tabular representation of $Q$ is exactly interpretable and has convergence guarantees; neural approximations such as DQN \cite{mnih2015} are more flexible but need more samples and are opaque.
+
+\subsection{Why discounting is awkward for a continuing search}
+
+The discounted return weights a reward $k$ steps ahead by $\gamma^k$, which gives an effective horizon of roughly $1/(1-\gamma)$ steps. A single run of a metaheuristic is a \emph{continuing} task: it has no goal state and is stopped by an external budget. The discount factor is then a tuning knob without a principled value, it makes pay-offs that are deferred by more than the horizon invisible, and it optimises a geometrically weighted sum that is correlated with, but not equal to, the quantity of interest, namely the improvement obtained per unit of computation.
+
+\subsection{Average-reward (differential) reinforcement learning}
+
+Average-reward RL optimises the long-run reward per time step,
+\begin{equation}
+\bar r(\pi)=\lim_{T\to\infty}\frac1T\sum_{t=1}^{T}\mathbb E[R_t],
+\end{equation}
+and learns a \emph{differential} value function, the excess of future rewards over the average rate. The idea goes back to Schwartz's R-learning \cite{schwartz1993} and to the theory of average-reward MDPs \cite{puterman1994}; Abounadi, Bertsekas and Borkar introduced relative value iteration (RVI) Q-learning \cite{abounadi2001}, and Wan, Naik and Sutton gave a modern treatment with convergence results for differential Q-learning \cite{wan2021}. The differential Bellman equation is obtained from the discounted one by deleting $\gamma$ and subtracting $\bar r$,
+\begin{equation}
+q(s,a)=\sum_{s',r}p(s',r\mid s,a)\Bigl[r-\bar r+\max_{a'}q(s',a')\Bigr].
+\end{equation}
+Convergence results assume that the Markov chain induced by every policy has a single recurrent class (the unichain assumption). When actions take different amounts of time, the semi-Markov extension replaces $\bar r$ by $\bar R\,\tau$, where $\tau$ is the duration of the action, so that $\bar R$ becomes reward per unit of time. In the present problem $\tau$ is the number of objective evaluations consumed by a mutation, so the controller optimises improvement per evaluation, the quantity of interest in an equal-budget comparison. Chapter~\ref{Chapter3} gives the exact update used.
+
+%----------------------------------------------------------------------------------------
+
+\section{Gap Addressed by this Thesis}\label{sec:lit-gap}
+
+Destroy-and-repair heuristics with adaptive destroy operators exist \cite{ropke2006}, and adaptive control of evolutionary parameters has been studied extensively \cite{karafotias2015}. However, to our knowledge no published TRMP method uses learning in the destroy step, and no published TRMP method exploits the multi-predecessor structure in the choice of which groups to remove. The thesis therefore (i) evaluates a learned destroy controller for TRMP under a strictly equal-evaluation protocol with non-learning controls, and (ii) examines whether alternative non-uniform destroy selections, including those suggested by the multi-predecessor structure, are of value, so that any improvement can be attributed to the right component.

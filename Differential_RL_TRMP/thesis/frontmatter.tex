@@ -1,0 +1,260 @@
+\frontmatter% Use roman page numbering style (i, ii, iii, iv...) for the pre-content pages
+
+\pagestyle{plain} % Default to the plain heading style until the thesis style is called for the body content
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\begin{titlepage}
+\begin{center}
+\begin{spacing}{1.2}
+
+{\LARGE \bfseries \ttitle\par}  % ← Uses thesis title from main.tex
+
+\vspace {5mm}
+\textit{A thesis submitted in partial fulfillment of the requirements\\for the award of the degree of} 
+
+\vspace{7mm}
+\textsc{\huge \MakeUppercase{\degreename}}  % ← Uses degree from main.tex
+
+\vspace {3mm}
+% Logo display - no figure environment needed on title page
+\includegraphics[width=4.2cm]{Figures/IIITA_Logo.png}
+\vspace{5mm}
+
+% ************************************
+\begin{minipage}[t]{0.5\textwidth}
+    \begin{flushleft} \large
+        \textit{By:-} \\%[2mm]
+            \textsc{\studentnamesformatted} % ← Uses student names from main.tex
+    \end{flushleft}
+\end{minipage}
+\begin{minipage}[t]{0.45\textwidth}
+    \begin{flushright} \large
+        \textit{Enrollment No.} \\
+            \textsc{\rollnumbersformatted} % ← Uses roll numbers from main.tex
+    \end{flushright}
+\end{minipage}\\[5mm]
+% *************************************
+
+\textit{Under the Supervision of}\\[2mm]
+\textsc{\Large \supname}\\% ← Uses supervisor name from main.tex
+\vspace{7mm}
+\textit{Submitted to the}\\[2mm]
+\textsc{\Large \deptname}\\ % ← Uses department from main.tex
+
+\vspace{5mm}
+\begin{hindi}
+    {\Large\textsc{
+        भारतीय सूचना प्रौद्योगिकी संस्थान, इलाहाबाद
+    }}
+\end{hindi} \\[3mm]
+\textsc{\Large \univname} % ← Uses university from main.tex
+
+\vspace{5mm}
+\monthyear
+
+
+\end{spacing}
+\end{center}
+\end{titlepage}
+
+
+%----------------------------------------------------------------------------------------
+%	CERTIFICATE
+%----------------------------------------------------------------------------------------
+\checktoopen
+\begin{figure}[htp]
+    % \centering
+    \includegraphics[height=3cm,keepaspectratio]{Figures/IIITA_Header.png}
+\end{figure}
+\thispagestyle{empty}
+% \vspace*{.06\textheight}
+
+\begin{spacing}{1.5}
+\begin{center}
+    {\centering\large\bfseries CERTIFICATE \par\vspace{10pt}}
+\end{center}
+
+\noindent It is certified that the work contained in the thesis titled \enquote{\ttitle} by {\studentnamescomma} has been carried out under my supervision and that this work has not been submitted elsewhere for a degree.
+% ↑ Uses title and student names from main.tex
+
+\vspace{3.5cm}
+\hfill\begin{minipage}{7.5cm}   %{0.52\linewidth}
+    \begin{spacing}{1.2}
+        \par
+        \rule{\textwidth}{0.2pt}\\
+        {\supname} \par  % ← Uses supervisor name from main.tex
+        {\deptname}  \par  % ← Uses department from main.tex
+        IIIT Allahabad \par
+    \end{spacing}
+\end{minipage}
+
+\end{spacing}
+% \end{certificate}
+\cleardoublepage
+
+%----------------------------------------------------------------------------------------
+%	DECLARATION
+%----------------------------------------------------------------------------------------
+\checktoopen
+\begin{figure}[htp]
+    % \centering
+    \includegraphics[height=3cm,keepaspectratio]{Figures/IIITA_Header.png}
+\end{figure}
+% \string\setblankpagestyle \space
+\thispagestyle{empty}
+\vspace{1mm}
+
+\begin{center}
+    {\large\bfseries CANDIDATE DECLARATION}
+\end{center}
+
+\begin{spacing}{1.2}
+
+\noindent \pronounwe, \studentnamesdeclaration, hereby certify that the thesis titled \enquote{\ttitle} has been submitted by \pronounus{} in partial fulfillment of the requirements for the Degree of \degreename{} in the \deptname{} at the \univname.
+% ↑ Uses pronouns and names from main.tex - automatically adjusts for single/multiple students
+
+\par
+\noindent \pronounwe{} acknowledge that plagiarism includes: 
+\begin{enumerate} 
+    \item Reproducing another person's work (fully or partially) or ideas and presenting them as \pronounour{} own.
+    \item Copying or paraphrasing another person's work without appropriate attribution.
+    \item Engaging in literary theft by reproducing a unique literary construct without crediting its source.
+\end{enumerate}
+\par
+\pronounwe{} affirm that due credit has been given to all original authors and sources through proper citations for words, ideas, diagrams, graphics, computer programs, experiments, results, and websites that are not \pronounour{} own contributions. Direct quotations have been appropriately marked, and sources have been properly referenced. Furthermore, \pronounwel{} declare that no portion of \pronounour{} work is plagiarized. In the event of a plagiarism claim, \pronounwel{} accept full responsibility for the contents of this thesis. \pronounwe{} acknowledge that \pronounour{} supervisor may not be able to verify the originality of every aspect of \pronounour{} work.
+\end{spacing}
+
+\begin{spacing}{2.0}
+% \vspace{1cm}
+\noindent
+\begin{minipage}[t]{0.4\textwidth}  
+    \begin{flushleft} 
+        Place: \rule{40mm}{0.1pt}\\
+    \end{flushleft}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+    \begin{flushright}         
+        Date: \rule{40mm}{0.1pt}\\       
+    \end{flushright}
+\end{minipage}
+% \rule{\textwidth}{0.1pt}\\
+\par
+{\studentsignatures} % ← Uses student names and rolls from main.tex
+\end{spacing}
+
+
+        
+\cleardoublepage
+
+
+
+%----------------------------------------------------------------------------------------
+%	QUOTATION PAGE
+%----------------------------------------------------------------------------------------
+
+% \vspace*{0.2\textheight}
+% \begin{spacing}{1.5}
+% \noindent\enquote{\itshape Thanks to my solid academic training, today I can write hundreds of words on virtually any topic without possessing a shred of information, which is how I also got a good job in industry.}\bigbreak
+
+% \hfill {\firstauthorname}
+% \end{spacing}
+% \cleardoublepage
+
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT PAGE
+%----------------------------------------------------------------------------------------
+
+\begin{abstract}
+\begin{spacing}{1.3}
+
+\addchaptertocentry{\abstractname} % Add the abstract to the table of contents
+
+The Total Rotation Minimization Problem (TRMP) asks for the activation order of sensor groups in a directional sensor network that minimises the total angular rotation of the sensors. It is NP-hard, and the rotation needed for a group depends on several earlier groups, so costs cannot be tabulated. The state-of-the-art metaheuristic, ES-TRMP, is a $(1+1)$ evolution strategy whose mutation destroys $\kappa=4$ uniformly random groups and repairs the schedule greedily. This thesis asks whether this blind destroy step can be improved by a learned controller.
+
+\pronounwe{} rebuilt ES-TRMP and reproduced its published results exactly on 33 instances, built an instrumented driver that is bit-identical to the original, and evaluated every variant under an equal-evaluation budget with paired seeds and pre-registered decision rules. A tabular differential (average-reward, semi-Markov) Q-learning controller, and a discounted variant, that choose the destruction size were tested against fixed-$\kappa$ and random-$\kappa$ controls. They learned a constant policy and matched the controls: the destruction size has almost no effect on solution quality at equal compute, so there was nothing to learn.
+
+The controlled experiments instead exposed a different lever, namely \emph{which} groups are removed. Removing a contiguous block of four adjacent groups, a fixed non-learned change, improves ES-TRMP on all 26 instances with at least 198 groups (mean $-2.17\%$, range $-1.18\%$ to $-3.07\%$; $-2.32\%$ on the 15 instances with 400 groups; Wilcoxon $p<0.0001$) under the original protocol of 4{,}000 iterations and 20 runs. A same-session paired re-run confirms the result in 157 of 160 paired runs. The change costs no additional evaluations, leaves small instances unchanged and does not reduce run-to-run variance. The thesis records what was tried, what was dropped and why, and attributes the improvement to the contiguity of the removed set and not to learning.
+
+\end{spacing}
+\end{abstract}
+
+%----------------------------------------------------------------------------------------
+%	ACKNOWLEDGEMENTS
+%----------------------------------------------------------------------------------------
+
+\begin{acknowledgements}
+\begin{spacing}{1.5}
+\addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
+
+I express my sincere gratitude to my supervisor, Dr.\ [Supervisor Name], Department of Information Technology, IIIT Allahabad, for guidance, encouragement and critical feedback throughout this work. I thank the authors of ES-TRMP, G.\ Srivastava and A.\ Singh, whose algorithm, code and benchmark instances formed the foundation of this study, and the faculty and staff of the Department of Information Technology for providing the computing environment. Finally, I thank my family and friends for their constant support.
+\end{spacing}
+\end{acknowledgements}
+
+%----------------------------------------------------------------------------------------
+%	LIST OF CONTENTS/FIGURES/TABLES PAGES
+%----------------------------------------------------------------------------------------
+
+\tableofcontents % Prints the main table of contents
+
+\listoffigures % Prints the list of figures
+
+
+\listoftables % Prints the list of tables
+
+
+%----------------------------------------------------------------------------------------
+%	ABBREVIATIONS
+%----------------------------------------------------------------------------------------
+
+\begin{abbreviations}{ll} % Include a list of abbreviations (a table of two columns)
+
+\textbf{TRMP} & \textbf{T}otal \textbf{R}otation \textbf{M}inimization \textbf{P}roblem\\
+\textbf{ES} & \textbf{E}volution \textbf{S}trategy\\
+\textbf{ES-TRMP} & $(1+1)$ evolution strategy with pre-processing for TRMP (Srivastava and Singh)\\
+\textbf{GA-TRMP+LSB} & Genetic algorithm with local search for TRMP (Singh and Rossi)\\
+\textbf{NEH} & Nawaz--Enscore--Ham insertion heuristic\\
+\textbf{DR} & Destroy-and-Repair\\
+\textbf{RL} & \textbf{R}einforcement \textbf{L}earning\\
+\textbf{MDP} & \textbf{M}arkov \textbf{D}ecision \textbf{P}rocess\\
+\textbf{SMDP} & \textbf{S}emi-\textbf{M}arkov \textbf{D}ecision \textbf{P}rocess\\
+\textbf{RVI} & \textbf{R}elative \textbf{V}alue \textbf{I}teration\\
+\textbf{TD} & \textbf{T}emporal \textbf{D}ifference\\
+\textbf{SD} & \textbf{S}tandard \textbf{D}eviation\\
+\textbf{CI} & \textbf{C}onfidence \textbf{I}nterval\\
+
+\end{abbreviations}
+
+
+%----------------------------------------------------------------------------------------
+%	SYMBOLS
+%----------------------------------------------------------------------------------------
+
+\begin{symbols}{lll} % Include a list of Symbols (a three column table)
+
+$m$ & number of directional sensors & --- \\
+$n$ & number of groups to be scheduled & --- \\
+$\rho$ & a schedule (permutation of the $n$ groups) & --- \\
+$f(\rho)$ & total rotation of schedule $\rho$ (objective) & radians \\
+$\varphi$ & sensing angle (aperture) of a sensor & radians \\
+$\kappa$ & destruction size of the mutation & groups \\
+$\delta$ & destruction size of the shuffle & groups \\
+$\eta$ & stagnation threshold that triggers a shuffle & iterations \\
+$\chi$ & number of random seeds in pre-processing & --- \\
+
+\addlinespace
+
+$\alpha$ & Q-learning step size & --- \\
+$\eta_{\mathrm{RL}}$ & step-size ratio of the reward-rate estimate & --- \\
+$\gamma$ & discount factor (discounted variant only) & --- \\
+$\varepsilon$ & exploration rate of the $\varepsilon$-greedy policy & --- \\
+$\bar R$ & running estimate of the average reward per unit time & --- \\
+$\tau$ & duration of an action (evaluations used) & evaluations \\
+$u_t,\ \beta_t$ & stagnation and budget-progress features & --- \\
+$B$ & evaluation budget & evaluations \\
+
+\end{symbols}
+

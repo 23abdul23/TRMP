@@ -1,0 +1,35 @@
+% Chapter 6
+
+\chapter{Conclusion and Future Work} % Main chapter title
+
+\label{Chapter6} % For referencing the chapter elsewhere, use \ref{Chapter6}
+
+%----------------------------------------------------------------------------------------
+
+\section{Conclusion}
+
+This thesis started from a design proposal to replace the blind destroy step of ES-TRMP, the state-of-the-art evolution strategy for the Total Rotation Minimization Problem, by a reinforcement-learning controller. The work proceeded in a sequence of controlled steps, each with a stated rule for what to conclude.
+
+\begin{enumerate}
+\item The published algorithm was reproduced exactly on 33 instances and an instrumented, bit-identical driver was built.
+\item A diagnostic showed that the destruction size $\kappa$ has almost no effect on solution quality at equal evaluations, and that 92--98\% of offspring have the parent's cost.
+\item A tabular differential Q-learning controller and a discounted variant were evaluated against fixed-$\kappa$ and random-$\kappa$ controls. They learned a constant policy and did not beat the controls: \textbf{learning the destruction size does not improve ES-TRMP}.
+\item Testing which groups are removed revealed that removing a \emph{contiguous block} of four adjacent groups improves the algorithm. The cause is the contiguity of the removed set; re-insertion order, edge handling and the cost of the removed groups were ruled out.
+\item Under the original protocol (4{,}000 iterations, 20 runs, 60 instances) the contiguous destroy improves the mean on \textbf{all 26 instances with $n\ge198$ by $2.17\%$ on average} (range $1.18$--$3.07\%$, $p<0.0001$) and on all 15 instances with $n=400$ by $2.32\%$; a same-session paired re-run confirms it in 157 of 160 runs. It leaves small instances unchanged, does not reduce variance and costs no extra evaluations.
+\end{enumerate}
+
+The improvement over the base paper is therefore real and substantial for large instances, but it \emph{does not come from reinforcement learning}; it comes from a fixed, non-learned change to the destroy operator that the learning-based design helped to find and verify. The learned-controller result is a controlled negative result, supported by non-learning controls, an equal evaluation budget and paired seeds, and the thesis records what was tried, what was dropped and why.
+
+%----------------------------------------------------------------------------------------
+
+\section{Future Work}
+
+\begin{enumerate}
+\item \textbf{Larger destruction size for the block operator.} At $n=400$, $\kappa\in\{6,8,12\}$ looked up to $0.8\%$ better than $\kappa=4$ in exploratory runs; this should be tested under the full protocol on all $n=400$ instances.
+\item \textbf{Phase-dependent schedule.} At $n=400$, the block operator appears better early and uniform better late. A fixed block-then-uniform schedule is a cheap test that needs no learning.
+\item \textbf{Mechanism.} A window-restricted random-subset control would separate adjacency from locality and test the explanation through shared sensor history.
+\item \textbf{Contiguous shuffle.} The shuffle step still uses uniform destruction; a contiguous shuffle is a natural extension.
+\item \textbf{Learning over operators and phase.} Only if the previous experiments reveal a confirmed phase-dependent preference, a small learner over $\{$uniform, block$\}\times$ phase (and possibly learned shuffling to remove the hand-tuned constants $\eta$ and $\delta$) would be justified; it should be evaluated against the best fixed operator, not only against the uniform baseline, in both online and offline-trained modes.
+\item \textbf{Complete comparison.} A re-run of GA-TRMP+LSB on the same hardware, a same-session baseline on all 60 instances, and a sensitivity study for the hyper-parameters of any learner.
+\item \textbf{Other problems.} The finding that contiguous removal helps when the cost of an element depends on several predecessors can be examined for other sequencing problems with the same property.
+\end{enumerate}

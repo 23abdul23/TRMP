@@ -1,0 +1,79 @@
+% Chapter 1
+
+\chapter{Introduction} % Main chapter title
+
+\label{Chapter1} % For referencing the chapter elsewhere, use \ref{Chapter1}
+
+%----------------------------------------------------------------------------------------
+
+\newcommand{\keyword}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+This chapter introduces the Total Rotation Minimization Problem (TRMP), the state-of-the-art evolution strategy that solves it, and the question this thesis investigates: whether the one blind step of that algorithm, the random choice of which groups to destroy in each mutation, can be improved by a learned controller. It states the research questions, summarises the contributions and gives the layout of the remaining chapters.
+
+%----------------------------------------------------------------------------------------
+
+\section{Motivation}
+
+A directional sensor can observe only an angular sector of its surroundings, its \emph{working direction}. To cover different targets at different times the sensors must physically rotate. Prior work on lifetime maximisation and quality-of-service optimisation in directional sensor networks produces a set of \emph{groups}: a group specifies which sensors are switched on and, for each of them, the direction it must face \cite{rossi2013}. The groups are activated one after another. When the network moves from one active group to the next, every sensor that appears in the new group and is not already pointing the right way must rotate.
+
+Rotation costs energy, and energy is the scarce resource of a sensor network, especially in remote or hostile deployments where batteries cannot be replaced. The energy of a rotation is proportional to its angular magnitude, so minimising the total number of degrees rotated minimises the energy spent. The order of activation changes this total, and choosing the order that minimises it is the Total Rotation Minimization Problem \cite{singh2015}.
+
+%----------------------------------------------------------------------------------------
+
+\section{Problem Statement}
+
+Let $m$ be the number of sensors and $n$ the number of groups to be scheduled. Group $g_i$ is a vector of length $m$ whose entry $g_{i,j}$ is the working direction sensor $j$ must adopt in group $i$, or a sentinel value if sensor $j$ is absent from the group. A special group $g_0$ gives the initial orientation of every sensor and is always scheduled first. A schedule is a permutation $\rho=g_{\rho_1}g_{\rho_2}\ldots g_{\rho_n}$ of the $n$ groups. Since a sensor may rotate clockwise or anticlockwise, it always takes the shorter arc,
+\begin{equation}
+d(\phi_1,\phi_2)=\min\bigl(|\phi_1-\phi_2|,\;2\pi-|\phi_1-\phi_2|\bigr),
+\end{equation}
+which never exceeds $\pi$. If $S_a$ denotes the orientation of all sensors after $a$ groups have been activated, the cost of moving to group $g_i$ is
+\begin{equation}
+D(S_a,g_i)=\sum_{j:\;g_{i,j}\ \text{present}} d\bigl(S_{a,j},g_{i,j}\bigr),
+\label{eq:transition}
+\end{equation}
+and the objective is to minimise the total rotation
+\begin{equation}
+\min_{\rho}\; f(\rho)=\sum_{i=1}^{n} D\bigl(S_{i-1},g_{\rho_i}\bigr),\qquad S_0=g_0 .
+\label{eq:objective}
+\end{equation}
+
+The structural property that makes TRMP special is that the state $S_i$ is \emph{not} simply $g_{\rho_i}$: a sensor that is absent from the group at position $i$ keeps the orientation it was last given, which comes from the nearest earlier group of the schedule that contained it. The cost of placing a group at position $i$ therefore depends on \emph{several} preceding groups, not only on the immediately preceding one \cite{srivastava2018}. Consequently the costs cannot be pre-computed into a distance matrix, the states must be recomputed on the fly, and a move that changes one position can change the cost of many later positions. TRMP is $\mathcal{NP}$-hard; the special case in which every sensor appears in every group is equivalent to the shortest Hamiltonian path problem with a fixed start vertex \cite{srivastava2018}. Exact methods are therefore out of reach for the benchmark sizes (up to $n=400$ groups), which motivates metaheuristics.
+
+%----------------------------------------------------------------------------------------
+
+\section{The Base Algorithm and the Open Question}
+
+The best published method for TRMP is ES-TRMP, a $(1+1)$ evolution strategy proposed by Srivastava and Singh \cite{srivastava2018}. It combines (i) a pre-processing step that builds a good starting schedule, (ii) a destroy-and-repair mutation, and (iii) a shuffling step that escapes local optima. It outperformed the previous best method, a genetic algorithm with local search (GA-TRMP+LSB) \cite{singh2015}, in best and mean solution quality on every benchmark instance, at the price of a longer running time.
+
+The mutation is the heart of the algorithm. It \emph{destroys} the current schedule by removing $\kappa$ groups and then \emph{repairs} it by re-inserting the removed groups one by one at their cheapest position. The repair is intelligent: greedy and specific to TRMP. The destroy step is blind: the $\kappa$ groups are chosen uniformly at random, and $\kappa=4$ is a constant fixed before the run. A design brief prepared for this project therefore proposed to replace \emph{only} the destroy decision by a learned controller based on differential (average-reward) reinforcement learning, keeping the encoding, objective, repair operator, acceptance rule and evaluation budget identical to the published algorithm. Any measured difference could then be attributed to the controller.
+
+%----------------------------------------------------------------------------------------
+
+\section{Research Questions}
+
+The thesis addresses three questions.
+
+\begin{enumerate}
+\item[\textbf{RQ1}] Does a learned controller for the destroy step, in particular one that selects the destruction size $\kappa$ by differential Q-learning, improve ES-TRMP when compared at an equal number of objective evaluations and against fair non-learning controls?
+\item[\textbf{RQ2}] If the algorithm can be improved, where does the improvement come from: from learning, or from some other component of the destroy step?
+\item[\textbf{RQ3}] How large is the improvement over the original ES-TRMP under the original experimental protocol (4{,}000 iterations, 20 runs, 60 instances), and on which instances does it appear?
+\end{enumerate}
+
+%----------------------------------------------------------------------------------------
+
+\section{Contributions}
+
+\begin{enumerate}
+\item \textbf{Exact reproduction and an instrumented implementation.} The published ES-TRMP results were reproduced exactly (identical best, mean, standard deviation and best-iteration statistics) on 33 instances, and an instrumented driver with an evaluation counter, selectable destroy policies and non-intrusive logging was built and shown to be bit-identical to the original.
+\item \textbf{A controlled negative result for learned destruction size.} A tabular differential Q-learning controller and a discounted variant were evaluated at equal evaluation budgets against fixed-$\kappa$ and random-$\kappa$ controls. They learned a constant policy and matched the controls; the destruction size has essentially no effect on solution quality at equal compute.
+\item \textbf{A contiguous-destroy operator.} Removing a contiguous block of $\kappa=4$ adjacent groups instead of $\kappa=4$ random groups improves ES-TRMP on all 26 instances with $n\ge198$ (mean $-2.17\%$) and on all 15 instances with $n=400$ (mean $-2.32\%$) under the original protocol, at no extra evaluation cost. Controls show that the active ingredient is the contiguity of the removed set.
+\item \textbf{An attribution of the improvement.} A set of control experiments shows that the improvement does not come from learning, nor from reinsertion order, edge effects or the cost of the removed groups.
+\item \textbf{An experimental methodology and a full experiment record.} Equal-evaluation accounting, paired seeds, pre-registered decision rules, a same-session baseline and a catalogue of every experiment, including those that were dropped, with the reason for each decision.
+\end{enumerate}
+
+%----------------------------------------------------------------------------------------
+
+\section{Organisation of the Thesis}
+
+Chapter~\ref{Chapter2} reviews TRMP, destroy-and-repair metaheuristics, adaptive operator control and average-reward reinforcement learning. Chapter~\ref{Chapter3} describes the baseline, the implementation, the evaluation methodology, the reinforcement-learning formulation and the destroy policies. Chapter~\ref{Chapter4} reports all experiments and results in the order in which they were carried out. Chapter~\ref{Chapter5} discusses the attribution of the improvement, why learning did not help and the threats to validity. Chapter~\ref{Chapter6} concludes and outlines future work. Appendix~\ref{AppendixA} lists every experiment with its outcome and decision, Appendix~\ref{AppendixB} gives the per-instance results of the full protocol, and Appendix~\ref{AppendixC} describes the code base and how to reproduce the results.
