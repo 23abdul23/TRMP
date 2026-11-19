@@ -2,3 +2,5 @@ out/
 .venv/
 *.exe
 __pycache__/
+logs/
+bin/
