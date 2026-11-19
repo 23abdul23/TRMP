@@ -20,6 +20,16 @@ bash laptop/run_confirm.sh --tier smoke     # 2-5 minutes: checks that everythin
 bash laptop/run_confirm.sh --dry-run        # prints the plan and the time estimate for the default tier, runs nothing
 bash laptop/run_confirm.sh                  # default tier "quick": 11 NEW instances, 10 runs, κ = 12 and 16
 ```
+### Follow-up run: where does the gain end? (κ = 20, 24, 32)
+```bash
+cd Differential_RL_TRMP && git pull
+bash laptop/run_confirm.sh --tier plateau --dry-run    # plan + time estimate (18 jobs, about 2.5-4 h on a 4-core laptop)
+bash laptop/run_confirm.sh --tier plateau              # 6 n=400 instances x κ 20, 24, 32 x 10 runs
+bash laptop/run_confirm.sh --tier plateau-lite         # 3 instances (one per aperture): about half the time (9 jobs)
+```
+These use the *same* six n=400 instances and seeds as the κ=12/16 run you already uploaded, so I can compare all five κ values
+run by run — there is no need to re-run κ=12/16. Upload the `.tar.gz` it prints, exactly as before.
+
 Other options: `--tier full` (all 26 instances with n≥198, 20 runs — many hours), `--kappas "12"`, `--runs 5`,
 `--jobs 2`, `--rundir <folder>` (resume). Watch progress with `tail -f logs/<run folder>/progress.log`.
 
@@ -32,7 +42,7 @@ cannot win just by using more compute). Seeds are shared, so the comparison is p
 ~1 minute) checks that your machine reproduces my reference results exactly; if so, the bundled κ=4 reference is used.
 
 ## What to upload
-When it finishes it prints `=====> UPLOAD THIS FILE: .../logs/confirm_<time>_<host>.tar.gz` (a few hundred KB). Upload that file.
+When it finishes it prints `=====> UPLOAD THIS FILE: .../logs/<tier>_<time>_<host>.tar.gz` (a few hundred KB). Upload that file.
 It contains `run_info.txt` (machine, compiler, settings), `progress.log` (timing of every job), `summary.txt` (a quick
 table), and `results/*.csv|row|log` (every run's result). If something fails, upload the same folder/archive anyway —
 `progress.log` and `results/*.log` tell me what happened.
