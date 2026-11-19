@@ -54,3 +54,40 @@ All seven instances: kappa=12 -0.70 % [-1.07, -0.29]; kappa=16 -0.52 % [-0.87, -
 ## Suggested next step
 Confirm kappa=12 (and 16) on all 15 n=400 instances x 20 runs at equal evaluations (about 20 CPU-hours per kappa) and on the nine
 n=200 instances (about 2 CPU-hours); then, if it holds, a finer grid (10, 14) and a rule kappa ~ n/30.
+
+---
+
+# Confirmation on new instances (laptop run, 19 Nov 2026)
+
+Run by the project owner with `laptop/run_confirm.sh --tier quick` on an Intel Core i5-10300H (4 cores), WSL2/Ubuntu, gcc 15.2;
+22 jobs, 0 failures, 3 h 44 min. The pre-flight check reproduced the reference results exactly (so the bundled kappa=4 reference
+was used). Instances are **new** (not in the screening set): 6 at n=400 (two per aperture) and 5 at n~200; 10 paired runs each;
+kappa in {12, 16}; each run stopped at the kappa=4 run's evaluation count (mean ratio 1.0004). Raw data:
+`RM-Report/data/ksweep_confirm_laptop/`; full output `RM-Report/data/data_ksweep_confirm_laptop.txt`.
+
+| kappa | n = 400 (6 inst., 60 runs) | runs better | n ~ 200 (5 inst., 50 runs) | runs better |
+|---|---|---|---|---|
+| 12 | -0.88 % [-1.15, -0.60] | 53/60 | -0.40 % [-0.87, +0.07] | 33/50 |
+| 16 | -1.11 % [-1.42, -0.80] | 53/60 | -0.68 % [-1.14, -0.24] | 35/50 |
+
+* **n = 400 confirmed out of sample.** All 6 new instances improve for both kappa (per instance -0.51 % to -1.56 %), in all three apertures.
+  Wilcoxon over the six instance means: p = 0.031 (the smallest possible with 6 instances). After Holm correction across the 22 cells, 3 of 6
+  n=400 instances are significant for kappa=16 and 2-3 for kappa=12 (corrected p = 0.043-0.066).
+* Pooled with the screening instances (9 instances at n=400, 84 paired runs): **kappa=12 -0.95 % [-1.18, -0.72]** (75/84 runs better),
+  **kappa=16 -1.03 % [-1.29, -0.78]** (74/84). Head to head, 16 vs 12 at n=400: 16 is better by 0.24 % [-0.02, +0.48], i.e. borderline; the
+  optimum lies on a plateau between 12 and 16 (at the screening, 12 looked better; here 16 does).
+* **Total change vs the published ES-TRMP** (these 10-run means against the published 20-run means; approximate): n=400 -3.10 % (kappa=12) and
+  -3.33 % (kappa=16), against -2.18 % for block kappa=4 on the same six instances. n~200: -2.26 % / -2.54 % against -1.98 % for kappa=4.
+* **n ~ 200: smaller and less certain.** kappa=16 -0.68 % (interval excludes 0; 35/50 runs better), kappa=12 -0.40 % (interval includes 0);
+  per instance the sign varies (kappa=12 is +0.30 % worse on one). Consistent with the screening (about -0.3 to -0.4 %).
+
+**Conclusion.** A larger block destruction size, kappa in 12-16, gives about **1 % more improvement at n = 400** on top of kappa=4
+(confirmed on 6 unseen instances), taking the total gain over the published ES-TRMP from about 2.3 % to about 3.1-3.3 %; at n ~ 200 the extra gain
+is about 0.4-0.7 % and not firmly established.
+
+**Limits.** 10 runs per instance; no decision threshold was pre-registered for this confirmation (the out-of-sample design is the safeguard); comparison with the published
+ES-TRMP uses 10-run means; kappa=16 is the edge of the grid, so kappa=20-24 is untested and the true optimum may be higher; shuffle unchanged; the paper's 4,000-iteration protocol
+is not used for kappa != 4 (the comparison is at equal evaluations, which is 1,000-1,400 iterations for kappa=12-16).
+
+**Next steps.** (1) kappa in {20, 24, 32} at n=400 to find the end of the plateau; (2) run the best kappa on all 15 n=400 instances with 20 runs
+(about 20 CPU-hours); (3) test a size-dependent rule (kappa ~ 3-4 % of n).

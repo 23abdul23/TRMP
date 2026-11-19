@@ -137,3 +137,9 @@ Same-session uniform baseline equals the reference mean on 10/10 instances. Per-
 Details: `docs/KAPPA_SWEEP_RESULTS.md`. Block with kappa in {3,6,8,12,16} vs block kappa=4, paired by run, equal evaluations, 7 instances (n~200 x4, n=400 x3).
 n=400: kappa=12 is best, -1.11 % [-1.43, -0.72], 22/24 runs better (kappa=16 -0.87 %, 8 -0.65 %, 6 -0.55 %, 3 +0.41 %); n~200: about -0.3 to -0.4 % for all kappa > 4, intervals include 0.
 Exploratory (single cells not significant after Holm); next step: confirm kappa=12 on all n=400 instances x 20 runs.
+
+## 13. kappa sweep confirmed on new instances (laptop run)
+
+`docs/KAPPA_SWEEP_RESULTS.md` (second part). 6 new n=400 and 5 new n~200 instances, 10 paired runs, equal evaluations: at n=400 kappa=12 -0.88 % and kappa=16 -1.11 % vs kappa=4
+(53/60 runs better each, all 6 instances improve); pooled with the screening, 9 instances: -0.95 % / -1.03 %. Total gain over the published ES-TRMP at n=400 about 3.1-3.3 % (was 2.3 %).
+n~200: -0.40 % / -0.68 %, weaker. Next: test kappa 20-32 and run the best kappa on all n=400 instances x 20 runs.

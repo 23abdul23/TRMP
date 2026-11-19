@@ -1,0 +1,43 @@
+2026-11-19 09:54:54 START covers_dirn400m240r150s06i02 k=12 runs=10
+2026-11-19 09:54:54 START covers_dirn400m240r150s06i00 k=16 runs=10
+2026-11-19 10:54:44 END   covers_dirn400m240r150s06i02 k=16 exit=0 seconds=3590
+2026-11-19 10:54:44 START covers_dirn400m240r150s06i00 k=12 runs=10
+2026-11-19 10:55:05 END   covers_dirn400m240r150s06i02 k=12 exit=0 seconds=3611
+2026-11-19 10:55:05 START covers_dirn400m240r150s04i02 k=16 runs=10
+2026-11-19 10:56:13 END   covers_dirn400m240r150s06i00 k=16 exit=0 seconds=3679
+2026-11-19 10:56:13 START covers_dirn400m240r150s04i02 k=12 runs=10
+2026-11-19 11:40:10 END   covers_dirn400m240r150s04i02 k=16 exit=0 seconds=2705
+2026-11-19 11:40:10 START covers_dirn400m240r150s04i01 k=16 runs=10
+2026-11-19 11:41:08 END   covers_dirn400m240r150s04i02 k=12 exit=0 seconds=2695
+2026-11-19 11:41:08 START covers_dirn400m240r150s04i01 k=12 runs=10
+2026-11-19 11:55:29 END   covers_dirn400m240r150s06i00 k=12 exit=0 seconds=3645
+2026-11-19 11:55:29 START covers_dirn400m240r150s03i02 k=16 runs=10
+2026-11-19 12:25:04 END   covers_dirn400m240r150s04i01 k=16 exit=0 seconds=2694
+2026-11-19 12:25:04 START covers_dirn400m240r150s03i02 k=12 runs=10
+2026-11-19 12:26:14 END   covers_dirn400m240r150s04i01 k=12 exit=0 seconds=2706
+2026-11-19 12:26:14 START covers_dirn400m240r150s03i01 k=16 runs=10
+2026-11-19 12:35:47 END   covers_dirn400m240r150s03i02 k=16 exit=0 seconds=2418
+2026-11-19 12:35:47 START covers_dirn400m240r150s03i01 k=12 runs=10
+2026-11-19 13:05:39 END   covers_dirn400m240r150s03i02 k=12 exit=0 seconds=2435
+2026-11-19 13:05:39 START covers_dirn200m120r150s06i03 k=16 runs=10
+2026-11-19 13:06:38 END   covers_dirn400m240r150s03i01 k=16 exit=0 seconds=2424
+2026-11-19 13:06:39 START covers_dirn200m120r150s06i03 k=12 runs=10
+2026-11-19 13:14:13 END   covers_dirn200m120r150s06i03 k=16 exit=0 seconds=514
+2026-11-19 13:14:13 START covers_dirn200m120r150s06i02 k=16 runs=10
+2026-11-19 13:15:15 END   covers_dirn200m120r150s06i03 k=12 exit=0 seconds=517
+2026-11-19 13:15:15 START covers_dirn200m120r150s06i02 k=12 runs=10
+2026-11-19 13:15:54 END   covers_dirn400m240r150s03i01 k=12 exit=0 seconds=2407
+2026-11-19 13:15:54 START covers_dirn200m120r150s04i03 k=16 runs=10
+2026-11-19 13:22:42 END   covers_dirn200m120r150s04i03 k=16 exit=0 seconds=408
+2026-11-19 13:22:42 START covers_dirn200m120r150s04i03 k=12 runs=10
+2026-11-19 13:23:14 END   covers_dirn200m120r150s06i02 k=16 exit=0 seconds=541
+2026-11-19 13:23:14 START covers_dirn200m120r150s04i02 k=16 runs=10
+2026-11-19 13:24:34 END   covers_dirn200m120r150s06i02 k=12 exit=0 seconds=559
+2026-11-19 13:24:34 START covers_dirn200m120r150s04i02 k=12 runs=10
+2026-11-19 13:29:37 END   covers_dirn200m120r150s04i03 k=12 exit=0 seconds=415
+2026-11-19 13:29:37 START covers_dirn200m120r150s03i02 k=16 runs=10
+2026-11-19 13:30:35 END   covers_dirn200m120r150s04i02 k=16 exit=0 seconds=441
+2026-11-19 13:30:35 START covers_dirn200m120r150s03i02 k=12 runs=10
+2026-11-19 13:31:59 END   covers_dirn200m120r150s04i02 k=12 exit=0 seconds=445
+2026-11-19 13:35:46 END   covers_dirn200m120r150s03i02 k=16 exit=0 seconds=369
+2026-11-19 13:36:33 END   covers_dirn200m120r150s03i02 k=12 exit=0 seconds=358

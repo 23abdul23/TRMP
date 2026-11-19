@@ -1,0 +1,11 @@
+started:     2026-11-19 09:52:25 +0000
+host:        Abdul
+system:      Linux Abdul 6.18.33.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Fri Jun  5 01:12:21 UTC 2026 x86_64 GNU/Linux
+cpu:         Intel(R) Core(TM) i5-10300H CPU @ 2.50GHz   cores=4   parallel_jobs=3
+compiler:    gcc  gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+git commit:  3157551374c950dd8fa879921bb33fbe4ab443fe
+tier=quick  runs=10  kappas="12 16"
+instances:   covers_dirn400m240r150s03i01 covers_dirn400m240r150s03i02 covers_dirn400m240r150s04i01 covers_dirn400m240r150s04i02 covers_dirn400m240r150s06i00 covers_dirn400m240r150s06i02 covers_dirn200m120r150s03i02 covers_dirn200m120r150s04i02 covers_dirn200m120r150s04i03 covers_dirn200m120r150s06i02 covers_dirn200m120r150s06i03
+preflight_matches_reference=yes  reference_mode=bundled  speed_factor_vs_reference=0.88  (calibration run cpu_s=42.728, reference cpu_s=48.466)
+plan: 22 jobs, estimated wall 2.6 h to 4.2 h
+finished:    2026-11-19 13:36:34 +0000   cells_done=22   failed_jobs=0

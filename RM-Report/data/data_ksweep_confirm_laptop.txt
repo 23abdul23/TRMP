@@ -1,0 +1,45 @@
+22 finished cells. Budget check: mean evaluations vs kappa=4 reference = 1.0004 (should be ~1.000)
+
+       short   n  k  runs  mean_ref   mean_k    pct  W  L     p  p_holm  vs_pub
+m200-s03-i02 198 12    10  1198.697 1188.234 -0.869  9  1 0.010   0.156  -3.286
+m200-s03-i02 198 16    10  1198.697 1192.482 -0.511  7  3 0.375   1.000  -2.940
+m200-s04-i02 200 12    10  1124.884 1120.232 -0.411  7  3 0.193   1.000  -1.897
+m200-s04-i02 200 16    10  1124.884 1109.829 -1.334  8  2 0.010   0.156  -2.808
+m200-s04-i03 200 12    10   911.237  909.043 -0.237  6  4 0.432   1.000  -1.607
+m200-s04-i03 200 16    10   911.237  904.444 -0.730  6  4 0.322   1.000  -2.104
+m200-s06-i02 200 12    10  1355.468 1359.586  0.303  3  7 0.322   1.000  -2.433
+m200-s06-i02 200 16    10  1355.468 1353.364 -0.153  6  4 0.695   1.000  -2.880
+m200-s06-i03 200 12    10  1183.257 1173.978 -0.768  8  2 0.232   1.000  -2.082
+m200-s06-i03 200 16    10  1183.257 1175.369 -0.661  8  2 0.105   0.844  -1.966
+m400-s03-i01 400 12    10  2722.357 2706.494 -0.580  8  2 0.049   0.586  -2.258
+m400-s03-i01 400 16    10  2722.357 2702.202 -0.738  7  3 0.064   0.586  -2.413
+m400-s03-i02 400 12    10  2714.466 2700.472 -0.513  7  3 0.049   0.586  -1.843
+m400-s03-i02 400 16    10  2714.466 2693.914 -0.756  7  3 0.049   0.586  -2.082
+m400-s04-i01 400 12    10  2747.678 2719.928 -1.004  9  1 0.010   0.156  -3.545
+m400-s04-i01 400 16    10  2747.678 2720.708 -0.977  9  1 0.010   0.156  -3.518
+m400-s04-i02 400 12    10  2843.551 2817.959 -0.899 10  0 0.002   0.043  -3.258
+m400-s04-i02 400 16    10  2843.551 2804.852 -1.358 10  0 0.002   0.043  -3.708
+m400-s06-i00 400 12    10  4261.320 4222.436 -0.912 10  0 0.002   0.043  -3.451
+m400-s06-i00 400 16    10  4261.320 4206.258 -1.291 10  0 0.002   0.043  -3.821
+m400-s06-i02 400 12    10  3805.430 3754.150 -1.344  9  1 0.004   0.066  -4.240
+m400-s06-i02 400 16    10  3805.430 3745.887 -1.563 10  0 0.002   0.043  -4.451
+
+== pooled by size and kappa (cluster bootstrap over instances then runs) ==
+
+n~200   kappa=12 inst= 5 mean  -0.40% CI [-0.87,+0.07] runs better 33/50  Wilcoxon(instance means) p=nan  vs published ES-TRMP -2.26%
+n~200   kappa=16 inst= 5 mean  -0.68% CI [-1.14,-0.24] runs better 35/50  Wilcoxon(instance means) p=nan  vs published ES-TRMP -2.54%
+
+n=400   kappa=12 inst= 6 mean  -0.88% CI [-1.15,-0.60] runs better 53/60  Wilcoxon(instance means) p=0.0312  vs published ES-TRMP -3.10%
+n=400   kappa=16 inst= 6 mean  -1.11% CI [-1.42,-0.80] runs better 53/60  Wilcoxon(instance means) p=0.0312  vs published ES-TRMP -3.33%
+
+== head to head between kappas (paired per run, % of the kappa=4 reference; negative = first is better) ==
+n~200  kappa 12 vs 16: mean +0.28% CI [-0.26,+0.79] first better in 18/50 runs
+n=400  kappa 12 vs 16: mean +0.24% CI [-0.02,+0.48] first better in 22/60 runs
+
+== by aperture (n=400 and n~200 together) ==
+phi=2pi/3  kappa=12 inst=3 mean -0.65%
+phi=2pi/3  kappa=16 inst=3 mean -0.67%
+phi=pi/2   kappa=12 inst=4 mean -0.64%
+phi=pi/2   kappa=16 inst=4 mean -1.10%
+phi=pi/3   kappa=12 inst=4 mean -0.68%
+phi=pi/3   kappa=16 inst=4 mean -0.92%
