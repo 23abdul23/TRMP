@@ -31,6 +31,7 @@ int main(int argc, char **argv)
   const char *inst=NULL,*initf="init_state.dat",*mode="baseline",*resout=NULL,*runscsv=NULL,
              *iterlog=NULL,*statelog=NULL;
   int nruns=20,kappa0=4,maxit=4000,i,trn,policy=POLICY_UNIFORM,ismix=0; double mixp=0; const char *mutlog=NULL;
+  const char *budgetcsv=NULL; long long budget[MAXRUNS]; int use_budget=0, iters_given=0;   /* [K] equal-evaluation stopping */
   for(i=1;i<argc;++i){
     if(!strcmp(argv[i],"--instance")) inst=argv[++i];
     else if(!strcmp(argv[i],"--init")) initf=argv[++i];
@@ -38,7 +39,8 @@ int main(int argc, char **argv)
     else if(!strcmp(argv[i],"--out")) resout=argv[++i];
     else if(!strcmp(argv[i],"--runs")) nruns=atoi(argv[++i]);
     else if(!strcmp(argv[i],"--kappa")) kappa0=atoi(argv[++i]);
-    else if(!strcmp(argv[i],"--iters")) maxit=atoi(argv[++i]);
+    else if(!strcmp(argv[i],"--iters")){ maxit=atoi(argv[++i]); iters_given=1; }
+    else if(!strcmp(argv[i],"--budget-csv")) budgetcsv=argv[++i];   /* [K] runs-csv of a reference arm: stop run r at its evals_calls */
     else if(!strcmp(argv[i],"--runs-csv")) runscsv=argv[++i];
     else if(!strcmp(argv[i],"--iter-log")) iterlog=argv[++i];
     else if(!strcmp(argv[i],"--state-log")) statelog=argv[++i];
@@ -56,6 +58,20 @@ int main(int argc, char **argv)
   if(!inst||nruns<1||nruns>MAXRUNS){ fprintf(stderr,"usage: es_drl --instance F [--mode baseline] [--out F] [--runs N<=50] [--kappa K] [--iters N] [--runs-csv F] [--iter-log F] [--state-log F] [--init F]\n"); return 1; }
   if(strcmp(mode,"baseline")){ fprintf(stderr,"mode %s not implemented yet\n",mode); return 1; }
   if(load_instance(inst,initf)) return 1;
+  if(budgetcsv){   /* [K] read per-run evaluation budgets (columns: instance,n,run,best,best_iter,iters,shuffles,pp_calls,evals_calls,...) */
+    FILE *fb=fopen(budgetcsv,"r"); char line[1024]; int r;
+    if(!fb){ fprintf(stderr,"cannot open budget csv %s\n",budgetcsv); return 1; }
+    for(r=0;r<MAXRUNS;++r) budget[r]=0;
+    if(!fgets(line,sizeof line,fb)) return 1;                      /* header */
+    while(fgets(line,sizeof line,fb)){
+      char *tok=strtok(line,","); int col=0, run=-1; long long ev=0;
+      while(tok){ if(col==2) run=atoi(tok); if(col==8) ev=atoll(tok); tok=strtok(NULL,","); col++; }
+      if(run>=0 && run<MAXRUNS) budget[run]=ev;
+    }
+    fclose(fb); use_budget=1;
+    for(r=0;r<nruns;++r) if(budget[r]<=0){ fprintf(stderr,"no budget for run %d in %s\n",r,budgetcsv); return 1; }
+    if(!iters_given) maxit=100000000;                               /* stop on evaluations, not iterations */
+  }
 
   FILE *fo=resout?fopen(resout,"a"):NULL, *fr=NULL, *fi=iterlog?fopen(iterlog,"w"):NULL, *fs=statelog?fopen(statelog,"w"):NULL, *fm=mutlog?fopen(mutlog,"w"):NULL;
   if(runscsv){ fr=fopen(runscsv,"a"); if(fr&&ftell(fr)==0)
@@ -88,7 +104,7 @@ int main(int argc, char **argv)
     unsigned long long xs=0x9E3779B97F4A7C15ULL*(unsigned long long)(trn+1)+1ULL; /* [T4] private RNG (xorshift64*), never touches rand() */
     int parent[COVMAX], pos_p[COVMAX], pos_o[COVMAX];
 
-    while(itr<maxit)
+    while(itr<maxit && (!use_budget || (eval_calls-e_start)<budget[trn]))
     {
       long long e0=eval_calls; double fp=record;
       if(fs){
