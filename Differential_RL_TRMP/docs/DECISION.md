@@ -131,3 +131,9 @@ Merged into this branch from agents' worktrees; write-ups: `Differential_RL_TRMP
 ## 11. Paired same-session confirmation (10 instances)
 
 Same-session uniform baseline equals the reference mean on 10/10 instances. Per-run paired: n ≥ 198 block better in 157/160 runs, −2.18 % (CI −2.50…−1.81); n=400 80/80, −2.44 %; n≈100 −0.60 % (28/40, not significant after Holm); SD not reduced (ratio 1.09). See `RM-Report/project_report/FINAL_REPORT.md` §8 and `RM-Report/data/data_paired.txt`.
+
+## 12. Block-destroy kappa sweep (screening, equal evaluations)
+
+Details: `docs/KAPPA_SWEEP_RESULTS.md`. Block with kappa in {3,6,8,12,16} vs block kappa=4, paired by run, equal evaluations, 7 instances (n~200 x4, n=400 x3).
+n=400: kappa=12 is best, -1.11 % [-1.43, -0.72], 22/24 runs better (kappa=16 -0.87 %, 8 -0.65 %, 6 -0.55 %, 3 +0.41 %); n~200: about -0.3 to -0.4 % for all kappa > 4, intervals include 0.
+Exploratory (single cells not significant after Holm); next step: confirm kappa=12 on all n=400 instances x 20 runs.
