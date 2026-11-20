@@ -1,0 +1,35 @@
+Per cell (negative % = better than the kappa=4 reference at equal evaluations; W/L = runs better/worse):
+instance                             n kappa  runs    ref_mean      mean_k      pct    W    L
+covers_dirn200m120r150s03i02       198     8    10    1198.697    1195.264    -0.29    4    6
+covers_dirn200m120r150s03i02       198    10    10    1198.697    1189.691    -0.75    6    4
+covers_dirn200m120r150s03i02       198    20    10    1198.697    1189.091    -0.80    6    4
+covers_dirn200m120r150s03i02       198    24    10    1198.697    1197.070    -0.14    5    5
+covers_dirn200m120r150s03i02       198    32    10    1198.697    1209.238    +0.88    2    8
+covers_dirn200m120r150s04i02       200     8    10    1124.884    1120.836    -0.36    7    3
+covers_dirn200m120r150s04i02       200    10    10    1124.884    1124.766    -0.01    6    4
+covers_dirn200m120r150s04i02       200    20    10    1124.884    1121.902    -0.27    5    5
+covers_dirn200m120r150s04i02       200    24    10    1124.884    1120.211    -0.41    7    3
+covers_dirn200m120r150s04i02       200    32    10    1124.884    1131.189    +0.56    3    7
+covers_dirn200m120r150s04i03       200     8    10     911.237     906.118    -0.56    8    2
+covers_dirn200m120r150s04i03       200    10    10     911.237     906.571    -0.51    6    4
+covers_dirn200m120r150s04i03       200    20    10     911.237     901.841    -1.03    9    1
+covers_dirn200m120r150s04i03       200    24    10     911.237     905.223    -0.66    8    2
+covers_dirn200m120r150s04i03       200    32    10     911.237     909.595    -0.18    5    5
+covers_dirn200m120r150s06i02       200     8    10    1355.468    1353.915    -0.12    7    3
+covers_dirn200m120r150s06i02       200    10    10    1355.468    1357.844    +0.17    6    4
+covers_dirn200m120r150s06i02       200    20    10    1355.468    1359.830    +0.32    4    6
+covers_dirn200m120r150s06i02       200    24    10    1355.468    1373.622    +1.34    2    8
+covers_dirn200m120r150s06i02       200    32    10    1355.468    1373.895    +1.36    1    9
+covers_dirn200m120r150s06i03       200     8    10    1183.257    1179.909    -0.28    6    4
+covers_dirn200m120r150s06i03       200    10    10    1183.257    1171.196    -1.02    7    3
+covers_dirn200m120r150s06i03       200    20    10    1183.257    1179.026    -0.36    6    4
+covers_dirn200m120r150s06i03       200    24    10    1183.257    1183.085    -0.01    4    6
+covers_dirn200m120r150s06i03       200    32    10    1183.257    1188.440    +0.44    5    5
+
+Pooled (mean of per-instance % change; instances = number of cells pooled):
+size       kappa instances  mean_pct  runs_better
+n~200          8         5     -0.32    32/50   
+n~200         10         5     -0.42    31/50   
+n~200         20         5     -0.43    30/50   
+n~200         24         5     +0.02    26/50   
+n~200         32         5     +0.61    16/50   

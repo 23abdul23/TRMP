@@ -148,3 +148,9 @@ n~200: -0.40 % / -0.68 %, weaker. Next: test kappa 20-32 and run the best kappa 
 
 `docs/KAPPA_SWEEP_RESULTS.md` (third part). Six n=400 instances, 10 paired runs, equal evaluations: kappa=16 -1.11 %, 20 -1.07 %, 12 -0.88 %, 24 -0.78 %, 32 -0.27 % (n.s.) vs block kappa=4;
 kappa=32 is clearly worse than 16 (+0.85 %). Best setting at n=400: kappa 16-20 (about 4-5 % of n); total gain over the published ES-TRMP about 3.3 %. Optimum at n~200 not established.
+
+## 15. kappa profile at n ~ 200 (8, 10, 20, 24, 32)
+
+`docs/KAPPA_SWEEP_RESULTS.md` (fourth part). Five n ~ 200 instances, 10 paired runs, equal evaluations: kappa=16 -0.68 % (best), 10/12/20 about -0.4 %, 8 -0.31 %, 24 +0.03 %, 32 +0.62 %.
+Same shape as n=400 but smaller and shifted; kappa=16 is best at both sizes (a constant, not a proportional, setting). Recommendation: block destroy with kappa=16 for n >= 200;
+next: 26-instance, 20-run confirmation of kappa=16 against kappa=4 and the published ES-TRMP.

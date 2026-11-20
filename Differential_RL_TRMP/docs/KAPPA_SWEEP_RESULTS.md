@@ -129,3 +129,40 @@ Raw data `RM-Report/data/ksweep_plateau_laptop/`, merged analysis `RM-Report/dat
 ## Next steps
 1. kappa in {20, 24, 32} (and 8, 10) at n ~ 200 (cheap: about 40 minutes) to see whether the optimum scales with n.
 2. Final confirmation of kappa=16 (and 20) on all 15 n=400 instances (and the 11 instances with n of 198-200) with 20 runs: about 22 CPU-hours per kappa.
+
+---
+
+# Does the best kappa scale with n? n ~ 200, kappa = 8, 10, 20, 24, 32 (run in the project container, 20 Nov 2026)
+
+`laptop/run_confirm.sh --tier n200 --jobs 4` on the project container (4 cores, gcc 13.3): 25 jobs, 0 failures, 31 minutes; pre-flight reproduced the reference exactly.
+The same five n ~ 200 instances and seeds as the kappa=12/16 run (so all seven kappa values pair run by run), 10 runs, equal evaluations (mean ratio 1.0005).
+Raw data `RM-Report/data/ksweep_n200_container/`, merged analysis `RM-Report/data/data_ksweep_n200_profile.txt`, figure `RM-Report/figures/fig10_kappa_profile.png`.
+
+## kappa profile at n ~ 200 (5 instances, 50 paired runs each; vs block kappa=4)
+
+| kappa | change vs kappa=4 (95 % CI) | runs better | iterations | vs kappa=16 |
+|---|---|---|---|---|
+| 8  | -0.31 % [-0.64, +0.02] | 32/50 | ~2,050 | +0.36 % [-0.08, +0.82] |
+| 10 | -0.41 % [-0.92, +0.09] | 31/50 | ~1,655 | +0.26 % [-0.31, +0.89] |
+| 12 | -0.40 % [-0.87, +0.06] | 33/50 | ~1,390 | +0.28 % [-0.25, +0.79] |
+| **16** | **-0.68 % [-1.15, -0.23]** | 35/50 | ~1,055 | -- |
+| 20 | -0.42 % [-0.96, +0.13] | 30/50 | ~855 | +0.26 % [-0.32, +0.84] |
+| 24 | +0.03 % [-0.57, +0.79] | 26/50 | ~720 | **+0.71 % [+0.20, +1.25]** |
+| 32 | +0.62 % [-0.00, +1.24] | 16/50 | ~555 | **+1.30 % [+0.72, +1.84]** (better in only 9/50 runs) |
+
+## Reading
+* **Same shape as n = 400, smaller and shifted:** a shallow minimum at **kappa = 16** (-0.68 %, the only interval that excludes zero among 8-20), a flat plateau from kappa = 8 to 20 whose members are not
+  distinguishable from each other, and loss of the benefit beyond: **kappa = 24 is no better than kappa = 4** and clearly worse than 16; kappa = 32 is worse than kappa = 4.
+  At n = 400 the useful range extends further (kappa = 24 still -0.78 %, kappa = 32 -0.27 %).
+* **kappa ~ 16 is the best setting at both sizes** (n = 400: -1.11 %; n ~ 200: -0.68 %). A proportional rule (4-5 % of n, i.e. 8-10 at n = 200) is *not* supported: kappa = 8 and 10 are nominally worse
+  than 16 at n ~ 200 (+0.36 % and +0.26 %, not significant). A constant kappa of about 16 fits both sizes better, though the n ~ 200 differences among 8-20 are within noise.
+* Instance dependent: on one n = 200 instance (`s06i02`) kappa >= 20 is worse than kappa = 4 (up to +1.36 %), on another (`s04i03`) kappa = 20 is the best (-1.02 %).
+* **Total change vs the published ES-TRMP** (10-run means vs published 20-run means; approximate): kappa = 16: n ~ 200 **-2.54 %** (kappa=4: -1.98 % on these five instances), n = 400 **-3.33 %** (kappa=4: -2.18 %).
+* Practical recommendation: **block destroy with kappa = 16 for instances with n >= 200** (n = 400: kappa = 16-20 equivalent).
+
+## Limits
+10 runs and 5 instances at n ~ 200; no per-instance cell is significant after Holm correction (smallest p = 0.002 x 47 cells); the plateau 8-20 at n ~ 200 cannot be resolved further with this sample; kappa for n < 198 not tested
+(the block gain itself is small below n ~ 100); shuffle unchanged; equal-evaluation comparison, not the paper's 4,000-iteration protocol.
+
+## Next step
+Final confirmation of kappa = 16 against kappa = 4 and the published ES-TRMP on all instances with n >= 198 (26 instances, 20 runs; about 22 CPU-hours), ideally under a pre-stated decision rule.
