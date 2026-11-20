@@ -143,3 +143,8 @@ Exploratory (single cells not significant after Holm); next step: confirm kappa=
 `docs/KAPPA_SWEEP_RESULTS.md` (second part). 6 new n=400 and 5 new n~200 instances, 10 paired runs, equal evaluations: at n=400 kappa=12 -0.88 % and kappa=16 -1.11 % vs kappa=4
 (53/60 runs better each, all 6 instances improve); pooled with the screening, 9 instances: -0.95 % / -1.03 %. Total gain over the published ES-TRMP at n=400 about 3.1-3.3 % (was 2.3 %).
 n~200: -0.40 % / -0.68 %, weaker. Next: test kappa 20-32 and run the best kappa on all n=400 instances x 20 runs.
+
+## 14. kappa plateau (20, 24, 32) measured on the laptop
+
+`docs/KAPPA_SWEEP_RESULTS.md` (third part). Six n=400 instances, 10 paired runs, equal evaluations: kappa=16 -1.11 %, 20 -1.07 %, 12 -0.88 %, 24 -0.78 %, 32 -0.27 % (n.s.) vs block kappa=4;
+kappa=32 is clearly worse than 16 (+0.85 %). Best setting at n=400: kappa 16-20 (about 4-5 % of n); total gain over the published ES-TRMP about 3.3 %. Optimum at n~200 not established.

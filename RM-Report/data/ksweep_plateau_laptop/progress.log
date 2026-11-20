@@ -1,0 +1,35 @@
+2026-11-19 14:28:34 START covers_dirn400m240r150s06i02 k=24 runs=10
+2026-11-19 14:28:34 START covers_dirn400m240r150s06i02 k=20 runs=10
+2026-11-19 15:33:32 END   covers_dirn400m240r150s06i02 k=32 exit=0 seconds=3898
+2026-11-19 15:33:32 START covers_dirn400m240r150s06i00 k=32 runs=10
+2026-11-19 15:33:49 END   covers_dirn400m240r150s06i02 k=20 exit=0 seconds=3915
+2026-11-19 15:33:50 START covers_dirn400m240r150s06i00 k=24 runs=10
+2026-11-19 15:34:05 END   covers_dirn400m240r150s06i02 k=24 exit=0 seconds=3931
+2026-11-19 15:34:05 START covers_dirn400m240r150s06i00 k=20 runs=10
+2026-11-19 16:34:47 END   covers_dirn400m240r150s06i00 k=32 exit=0 seconds=3675
+2026-11-19 16:34:47 START covers_dirn400m240r150s04i02 k=32 runs=10
+2026-11-19 16:35:19 END   covers_dirn400m240r150s06i00 k=24 exit=0 seconds=3689
+2026-11-19 16:35:19 START covers_dirn400m240r150s04i02 k=24 runs=10
+2026-11-19 16:35:21 END   covers_dirn400m240r150s06i00 k=20 exit=0 seconds=3676
+2026-11-19 16:35:21 START covers_dirn400m240r150s04i02 k=20 runs=10
+2026-11-19 17:19:25 END   covers_dirn400m240r150s04i02 k=32 exit=0 seconds=2678
+2026-11-19 17:19:25 START covers_dirn400m240r150s04i01 k=32 runs=10
+2026-11-19 17:20:23 END   covers_dirn400m240r150s04i02 k=24 exit=0 seconds=2704
+2026-11-19 17:20:23 START covers_dirn400m240r150s04i01 k=24 runs=10
+2026-11-19 17:20:37 END   covers_dirn400m240r150s04i02 k=20 exit=0 seconds=2716
+2026-11-19 17:20:37 START covers_dirn400m240r150s04i01 k=20 runs=10
+2026-11-19 18:04:54 END   covers_dirn400m240r150s04i01 k=32 exit=0 seconds=2729
+2026-11-19 18:04:54 START covers_dirn400m240r150s03i02 k=32 runs=10
+2026-11-19 18:06:21 END   covers_dirn400m240r150s04i01 k=24 exit=0 seconds=2758
+2026-11-19 18:06:21 START covers_dirn400m240r150s03i02 k=24 runs=10
+2026-11-19 18:06:35 END   covers_dirn400m240r150s04i01 k=20 exit=0 seconds=2758
+2026-11-19 18:06:35 START covers_dirn400m240r150s03i02 k=20 runs=10
+2026-11-19 18:44:23 END   covers_dirn400m240r150s03i02 k=32 exit=0 seconds=2369
+2026-11-19 18:44:23 START covers_dirn400m240r150s03i01 k=32 runs=10
+2026-11-19 18:46:08 END   covers_dirn400m240r150s03i02 k=24 exit=0 seconds=2387
+2026-11-19 18:46:08 START covers_dirn400m240r150s03i01 k=24 runs=10
+2026-11-19 18:46:36 END   covers_dirn400m240r150s03i02 k=20 exit=0 seconds=2401
+2026-11-19 18:46:36 START covers_dirn400m240r150s03i01 k=20 runs=10
+2026-11-19 19:23:35 END   covers_dirn400m240r150s03i01 k=32 exit=0 seconds=2352
+2026-11-19 19:25:17 END   covers_dirn400m240r150s03i01 k=24 exit=0 seconds=2349
+2026-11-19 19:25:45 END   covers_dirn400m240r150s03i01 k=20 exit=0 seconds=2349

@@ -1,0 +1,26 @@
+Per cell (negative % = better than the kappa=4 reference at equal evaluations; W/L = runs better/worse):
+instance                             n kappa  runs    ref_mean      mean_k      pct    W    L
+covers_dirn400m240r150s03i01       400    20    10    2722.357    2703.296    -0.70    8    2
+covers_dirn400m240r150s03i01       400    24    10    2722.357    2718.031    -0.16    6    4
+covers_dirn400m240r150s03i01       400    32    10    2722.357    2737.281    +0.55    4    6
+covers_dirn400m240r150s03i02       400    20    10    2714.466    2684.107    -1.12   10    0
+covers_dirn400m240r150s03i02       400    24    10    2714.466    2689.827    -0.91    8    2
+covers_dirn400m240r150s03i02       400    32    10    2714.466    2712.536    -0.07    6    4
+covers_dirn400m240r150s04i01       400    20    10    2747.678    2708.155    -1.44    8    2
+covers_dirn400m240r150s04i01       400    24    10    2747.678    2726.218    -0.78    7    3
+covers_dirn400m240r150s04i01       400    32    10    2747.678    2730.230    -0.64    6    4
+covers_dirn400m240r150s04i02       400    20    10    2843.551    2813.325    -1.06    8    2
+covers_dirn400m240r150s04i02       400    24    10    2843.551    2813.269    -1.06   10    0
+covers_dirn400m240r150s04i02       400    32    10    2843.551    2825.098    -0.65    8    2
+covers_dirn400m240r150s06i00       400    20    10    4261.320    4229.204    -0.75   10    0
+covers_dirn400m240r150s06i00       400    24    10    4261.320    4240.998    -0.48    6    4
+covers_dirn400m240r150s06i00       400    32    10    4261.320    4269.752    +0.20    3    7
+covers_dirn400m240r150s06i02       400    20    10    3805.430    3754.470    -1.34    9    1
+covers_dirn400m240r150s06i02       400    24    10    3805.430    3755.945    -1.30    9    1
+covers_dirn400m240r150s06i02       400    32    10    3805.430    3766.915    -1.01    8    2
+
+Pooled (mean of per-instance % change; instances = number of cells pooled):
+size       kappa instances  mean_pct  runs_better
+n=400         20         6     -1.07    53/60   
+n=400         24         6     -0.78    46/60   
+n=400         32         6     -0.27    35/60   

@@ -91,3 +91,41 @@ is not used for kappa != 4 (the comparison is at equal evaluations, which is 1,0
 
 **Next steps.** (1) kappa in {20, 24, 32} at n=400 to find the end of the plateau; (2) run the best kappa on all 15 n=400 instances with 20 runs
 (about 20 CPU-hours); (3) test a size-dependent rule (kappa ~ 3-4 % of n).
+
+---
+
+# Where does the gain end? kappa = 20, 24, 32 (laptop run, 19-20 Nov 2026)
+
+`laptop/run_confirm.sh --tier plateau`: the same six n=400 instances and seeds as the kappa=12/16 confirmation, kappa in {20, 24, 32}, 10 paired runs,
+equal evaluations (mean ratio 1.0006). Same i5-10300H / WSL2 laptop; 18 jobs, 0 failures, 5 h 01 min; pre-flight reproduced the reference exactly.
+Raw data `RM-Report/data/ksweep_plateau_laptop/`, merged analysis `RM-Report/data/data_ksweep_plateau_merged.txt`, figure `RM-Report/figures/fig10_kappa_profile.png`.
+
+## kappa profile at n = 400 (6 instances common to all kappas, 60 paired runs each; vs block kappa=4)
+
+| kappa | change vs kappa=4 (95 % CI) | runs better | iterations at equal evaluations | vs kappa=16 |
+|---|---|---|---|---|
+| 12 | -0.88 % [-1.16, -0.59] | 53/60 | ~1,370 | +0.24 % [-0.01, +0.49] |
+| **16** | **-1.11 % [-1.42, -0.80]** | 53/60 | ~1,040 | -- |
+| **20** | **-1.07 % [-1.37, -0.77]** | 53/60 | ~835 | +0.05 % [-0.35, +0.42] |
+| 24 | -0.78 % [-1.13, -0.39] | 46/60 | ~700 | +0.34 % [-0.00, +0.69] |
+| 32 | -0.27 % [-0.75, +0.21] | 35/60 | ~530 | **+0.85 % [+0.47, +1.29]** (better in only 10/60 runs) |
+
+* **Plateau at kappa = 12-20, peak at 16-20.** kappa=16 and kappa=20 are indistinguishable (0.05 %). Beyond 20 the gain declines: kappa=24 is slightly worse than 16
+  (borderline), and **kappa=32 is clearly worse than 16** (+0.85 %, interval excludes 0) and no longer significantly better than kappa=4 (interval includes 0).
+  The profile is an inverted U: too-small destruction does too little per move, too-large destruction does too few moves per evaluation (only ~530 iterations at kappa=32) and its
+  contiguous block becomes as disruptive as the shuffle (delta = 40 at n >= 200).
+* **Consistent across the three apertures** (kappa=20: -0.91 %, -1.25 %, -1.04 % for 2pi/3, pi/2, pi/3) and on every instance kappa=20 is better than kappa=4 in 8-10 of 10 runs (except
+  -0.70 % / 8 of 10 on one instance, all negative).
+* **Total change vs the published ES-TRMP at n=400** (10-run means vs published 20-run means; approximate): kappa=16 -3.33 %, kappa=20 -3.29 %, kappa=24 -3.01 %,
+  kappa=32 -2.50 %, against -2.18 % for block kappa=4 on the same six instances.
+* A reasonable setting at n=400 is **kappa = 16-20 (about 4-5 % of n)**.
+
+## Limits
+* 10 runs and 6 instances; per-instance tests cannot be significant after Holm correction (smallest p = 0.002 x 40 cells = 0.08), the conclusion rests on the pooled intervals and the consistent direction.
+* The shape at **n ~ 200 is not established**: only kappa=12 (-0.40 %) and 16 (-0.68 %) have been measured on 5 instances; a 2-run smoke test on n=198 hinted that kappa=24/32 are worse there
+  (+1.0 %, +1.5 %) but is far too small to rely on. Whether the optimum scales with n (about 4-5 % of n) or is roughly constant (about 16) is open.
+* Comparison with the published ES-TRMP is approximate (run counts differ); the shuffle is unchanged; the paper's 4,000-iteration protocol is not used for kappa != 4.
+
+## Next steps
+1. kappa in {20, 24, 32} (and 8, 10) at n ~ 200 (cheap: about 40 minutes) to see whether the optimum scales with n.
+2. Final confirmation of kappa=16 (and 20) on all 15 n=400 instances (and the 11 instances with n of 198-200) with 20 runs: about 22 CPU-hours per kappa.
