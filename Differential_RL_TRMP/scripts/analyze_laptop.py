@@ -59,19 +59,20 @@ for g in ['n<=100', 'n~200', 'n=400']:
         extra = f"  vs published ES-TRMP {s.vs_pub.mean():+.2f}%" if 'vs_pub' in s else ''
         print(f"{g:7s} kappa={k:2d} inst={len(s):2d} mean {s.pct.mean():+6.2f}% CI [{lo:+.2f},{hi:+.2f}] runs better {int((allr<0).sum())}/{len(allr)}  Wilcoxon(inst means) p={pw:.4f}{extra}")
     print()
-# kappa profile on the instances common to ALL kappas (n=400), so the values are directly comparable
-t4 = t[t.grp == 'n=400']; common = [i for i in t4.inst.unique() if all((i, k) in rows for k in ks)]
-if len(ks) >= 2 and common:
-    print(f'== kappa profile at n=400 on the {len(common)} instances common to all kappas (vs kappa=4; negative = better) ==')
-    base16 = 16 if 16 in ks else ks[0]
-    for k in ks:
+# kappa profile per size group, on the instances common to ALL kappas present in that group, so the values are directly comparable
+for g in ['n~200', 'n=400']:
+    tg = t[t.grp == g]; kg = sorted(tg.k.unique()); common = [i for i in tg.inst.unique() if all((i, k) in rows for k in kg)]
+    if len(kg) < 2 or not common: continue
+    print(f'== kappa profile at {g} on the {len(common)} instances common to all its kappas (vs kappa=4; negative = better) ==')
+    base = 16 if 16 in kg else kg[0]
+    for k in kg:
         vals = [pct[(i, k)] for i in common]; lo, hi = boot(vals); allr = np.concatenate(vals)
         vs = ''
-        if k != base16:
-            dv = [100 * (absb[(i, k)][0] - absb[(i, base16)][0]) / absb[(i, k)][1] for i in common]; dl, dh = boot(dv); da = np.concatenate(dv)
-            vs = f"   vs kappa={base16}: {np.mean([v.mean() for v in dv]):+.2f}% [{dl:+.2f},{dh:+.2f}] (better in {int((da<0).sum())}/{len(da)} runs)"
-        print(f"kappa={k:2d}  mean {np.mean([v.mean() for v in vals]):+6.2f}%  CI [{lo:+.2f},{hi:+.2f}]  runs better {int((allr<0).sum())}/{len(allr)}  iterations ~{t4[t4.k==k].iters.mean():.0f}{vs}")
-    best = min(ks, key=lambda k: np.mean([pct[(i, k)].mean() for i in common])); print(f'best kappa on these instances: {best}\n')
+        if k != base:
+            dv = [100 * (absb[(i, k)][0] - absb[(i, base)][0]) / absb[(i, k)][1] for i in common]; dl, dh = boot(dv); da = np.concatenate(dv)
+            vs = f"   vs kappa={base}: {np.mean([v.mean() for v in dv]):+.2f}% [{dl:+.2f},{dh:+.2f}] (better in {int((da<0).sum())}/{len(da)} runs)"
+        print(f"kappa={k:2d}  mean {np.mean([v.mean() for v in vals]):+6.2f}%  CI [{lo:+.2f},{hi:+.2f}]  runs better {int((allr<0).sum())}/{len(allr)}  iterations ~{tg[tg.k==k].iters.mean():.0f}{vs}")
+    best = min(kg, key=lambda k: np.mean([pct[(i, k)].mean() for i in common])); print(f'best kappa on these instances: {best}\n')
 if len(ks) >= 2:
     print('== head to head between kappas (paired per run, % of the kappa=4 reference; negative = first is better) ==')
     for a in ks:

@@ -7,6 +7,7 @@
 #   bash laptop/run_confirm.sh --tier full       # all 26 instances with n>=198, 20 runs (very long)
 #   bash laptop/run_confirm.sh --tier plateau    # where does the gain end? kappa 20, 24, 32 on the 6 quick n=400 instances
 #   bash laptop/run_confirm.sh --tier plateau-lite   # same, but 3 instances (one per aperture): about half the time
+#   bash laptop/run_confirm.sh --tier n200       # does the best kappa scale with n? kappa 8,10,20,24,32 on the 5 quick n~200 instances
 #
 # What it does: compiles the C driver, checks that your machine reproduces the reference results, estimates the
 # run time, runs every (instance, kappa) job in parallel, and writes EVERYTHING to  logs/<tier>_<time>_<host>/
@@ -17,11 +18,11 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "$HERE/.." && pwd)"; cd "$ROOT" || exit 1
 
-usage() { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; cat <<'EOT'
+usage() { sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; cat <<'EOT'
 
 Options:
-  --tier smoke|quick|full|plateau|plateau-lite   which set of instances (default quick)
-  --kappas "12 16"          destruction sizes to test (default: "12 16"; "20 24 32" for the plateau tiers)
+  --tier smoke|quick|full|plateau|plateau-lite|n200   which set of instances (default quick)
+  --kappas "12 16"          destruction sizes to test (default: "12 16"; "20 24 32" for plateau tiers; "8 10 20 24 32" for n200)
   --runs N                  runs per instance, 1..20 (default: smoke 2, quick 10, full 20)
   --jobs N                  parallel jobs (default: number of cores minus one)
   --rundir DIR              reuse/resume an existing log folder
@@ -47,12 +48,15 @@ SMOKE="covers_dirn200m120r150s06i00 covers_dirn100m060r150s03i01"
 # plateau = the six n=400 instances of the quick tier (so results pair directly with the kappa 12/16 runs already measured)
 PLATEAU="covers_dirn400m240r150s03i01 covers_dirn400m240r150s03i02 covers_dirn400m240r150s04i01 covers_dirn400m240r150s04i02 covers_dirn400m240r150s06i00 covers_dirn400m240r150s06i02"
 PLATEAU_LITE="covers_dirn400m240r150s03i01 covers_dirn400m240r150s04i01 covers_dirn400m240r150s06i00"
+# n200 = the five n~200 instances of the quick tier (pairs with the kappa 12/16 run already measured)
+N200="covers_dirn200m120r150s03i02 covers_dirn200m120r150s04i02 covers_dirn200m120r150s04i03 covers_dirn200m120r150s06i02 covers_dirn200m120r150s06i03"
 case "$TIER" in
   smoke) INSTANCES=$SMOKE; DEF_RUNS=2; DEF_K="12 16";;
   quick) INSTANCES=$QUICK; DEF_RUNS=10; DEF_K="12 16";;
   full)  INSTANCES=$ALL26; DEF_RUNS=20; DEF_K="12 16";;
   plateau) INSTANCES=$PLATEAU; DEF_RUNS=10; DEF_K="20 24 32";;
   plateau-lite) INSTANCES=$PLATEAU_LITE; DEF_RUNS=10; DEF_K="20 24 32";;
+  n200) INSTANCES=$N200; DEF_RUNS=10; DEF_K="8 10 20 24 32";;
   *) echo "unknown tier: $TIER"; exit 2;;
 esac
 [ -z "$RUNS" ] && RUNS=$DEF_RUNS

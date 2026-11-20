@@ -30,6 +30,12 @@ bash laptop/run_confirm.sh --tier plateau-lite         # 3 instances (one per ap
 These use the *same* six n=400 instances and seeds as the κ=12/16 run you already uploaded, so I can compare all five κ values
 run by run — there is no need to re-run κ=12/16. Upload the `.tar.gz` it prints, exactly as before.
 
+### Does the best κ scale with n? (n≈200)
+```bash
+bash laptop/run_confirm.sh --tier n200 --dry-run    # 25 jobs: 5 n≈200 instances x κ 8, 10, 20, 24, 32 x 10 runs (about 1-2 h)
+```
+Same five n≈200 instances and seeds as the κ=12/16 run, so all κ values pair run by run.
+
 Other options: `--tier full` (all 26 instances with n≥198, 20 runs — many hours), `--kappas "12"`, `--runs 5`,
 `--jobs 2`, `--rundir <folder>` (resume). Watch progress with `tail -f logs/<run folder>/progress.log`.
 
